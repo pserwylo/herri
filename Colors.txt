@@ -1,0 +1,5 @@
+Highest - #006837
+High - #31a354
+Medium - #78c679
+Low - #c2e699
+Lowest - #ffffcc
