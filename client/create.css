@@ -1,0 +1,27 @@
+.card.panel {
+    margin-bottom: 1em;
+    display: block;
+}
+
+.card.panel .panel-body {
+    padding-top: 2em;
+    padding-bottom: 2em;
+}
+
+.card.panel .panel-heading {
+    display: none;
+}
+
+.card.collapsed.panel .panel-heading {
+    display: block;
+}
+
+.card.collapsed.panel .panel-body {
+    display: none;
+}
+
+ul, ol {
+    list-style: none none;
+    margin: 0;
+    padding: 0;
+}
