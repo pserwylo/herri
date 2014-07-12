@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="bootstrap/css/bootstrap.css" />
     <!--<script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>-->
     <script type="text/javascript" src="leaflet-src.js"></script>
-    <script type="text/javascript" src="file:///opt/data/gis/lga/shapefiles/lga.geojson"></script>
+    <script type="text/javascript" src="jquery-2.1.1.js"></script>
     <style>
         #map {
             width: 90%;
@@ -23,7 +23,10 @@
             <h1>Herri - Find <em>your</em> place in <em>your</em> community</h1>
         </div>
 
+        <div id="zoom-level"></div>
+
         <div id="map" class="img-thumbnail"></div>
+
 
     </div>
 
@@ -61,14 +64,55 @@
 
                 };
 
-                createOsmLayer().addTo( map );
+                // createOsmLayer().addTo( map );
                 return map;
 
             };
 
-            var map = initMap();
+            var host = 'ec2-54-79-46-214.ap-southeast-2.compute.amazonaws.com';
+            var port = 8080;
+            var path = "/geoserver/cite/ows";
 
-            L.geoJson( lgaBoundaries ).addTo( map );
+            var dataUrl = "http://" + host + ":" + port + path;
+
+            var dataStyle = {
+                weight: 1,
+                color: "#b30000"
+            };
+
+            var models = {
+                population : "cite:lga_population",
+                populationSimple : "cite:lga_population_simple",
+                populationDynamic : "cite:lga_population_dynamic"
+            };
+
+            $.ajax({
+                type: "GET",
+                url: dataUrl,
+                dataType: 'json',
+                data: {
+                    service: 'WFS',
+                    version: '1.0.0',
+                    request: 'GetFeature',
+                    typeName: models.populationSimple,
+                    viewparams: "simplify_tolerance:0.01",
+                    maxFeatures: 1000,
+                    outputFormat: 'application/json'
+                },
+                success: function (response) {
+                    L.geoJson(response, {
+                        style: dataStyle
+                    }).addTo(map);
+                }
+            });
+
+            var showZoomLevel = function() {
+                $( '#zoom-level' ).html( 'Zoom level: ' + map.getZoom() );
+            };
+
+            var map = initMap();
+            map.on( 'zoomend', showZoomLevel );
+            showZoomLevel();
 
         })();
 
