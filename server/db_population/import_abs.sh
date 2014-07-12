@@ -9,5 +9,6 @@ DB=gov2014db
 
 psql -w $DB $DB_USER < b04a.sql
 psql -w $DB $DB_USER < b04b.sql
+psql -w $DB $DB_USER < b13.sql
 psql -w $DB $DB_USER < b17b.sql
 psql -w $DB $DB_USER < b21.sql
