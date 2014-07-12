@@ -19,57 +19,157 @@
         </div>
 
         <div class="row">
-            <div class="col-md-6">
-                <div id="cards" class="panel-group"></div>
+            <div class="col-md-4">
+                <h3>How to design a model</h3>
+                <p>Some text explaining why this is awesome.</p>
+                <p>Some text educating as to the "proper" way to do this.</p>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <h3>Describe your model</h3>
+
+                    <div class="input-group-lg">
+                        <label for="inputModelName">Name of model</label>
+                        <input id="inputModelName" type="text" class="form-control" />
+                    </div>
+
+                    <div class="input-group">
+                        <label for="inputModelDescription">Why did you create this model?</label>
+                        <textarea id="inputModelDescription" class="form-control"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+
+                <h3>Choose what to include</h3>
+
+                <div id="cards" class="panel-group"></div>
+
+                <button id="btnAdd" class="btn btn-default">Add another</button>
+                <button id="btnFinished" class="btn btn-primary">Finished!</button>
 
             </div>
         </div>
-
-        <button id="btnAdd" class="btn btn-default">Add another</button>
-        <button id="btnFinished" class="btn btn-default">Finished!</button>
 
     </div>
 
     <script type="text/javascript">
 
-        var attributes = [
-            "People under 5yo",
-            "People under 10yo",
-            "People under 15yo",
-            "People under 20yo",
-            "People under 25yo",
-            "People under 30yo",
-            "Number of males",
-            "Number of females"
-        ];
+        var getWeights = function() {
 
+            var data = {
+                weights : []
+            };
+
+            $( '#cards' ).find( '.card' ).each( function( i, item ) {
+                data.weights.push({
+                    attribute : $( item ).find( 'select[name=attribute]' ).val(),
+                    weight    : $( item ).find( 'select[name=weight]'    ).val()
+                });
+            });
+
+            return data;
+
+        };
+
+        var isAlreadyIncluded = function( attributeName ) {
+
+            var data = getWeights();
+            var count = 0;
+            for ( var i = 0; i < data.weights.length; i ++ ) {
+                if ( data.weights[ i ].attribute == attributeName ) {
+                    count ++;
+                    if ( count > 1 ) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+
+        };
+
+        var changePanelTitle = function( panel, title ) {
+            $( panel ).find( '.panel-heading a' ).html( title );
+        };
+
+        var collapseAllCards = function() {
+            var cards = $( '#cards' ).find( '.card' );
+            cards.find( '.panel-heading' ).show( 'slideUp' );
+            cards.find( '.panel-body' ).hide( 'slideUp' );
+        };
+
+        var showCard = function( card ) {
+            $( card ).find( '.panel-heading').hide( 'slideDown' );
+            $( card ).find( '.panel-body').show( 'slideUp' );
+        };
+
+        var removeCard = function( card ) {
+            $( card ).remove();
+            if ( $( '#cards' ).find( '.card' ).length == 0 ) {
+                addNewCard();
+            }
+        };
+
+        // All cards are created hidden, you will need to show them
+        // after adding them to the dom.
         var createCard = function() {
 
             var createDropdown = function() {
 
-                var select = document.createElement( "select" );
+                var attributes = {
+                    "T_P_10" : {
+                        name : "People under 10yo",
+                        attribute : "T_P_10",
+                        description : "Total people below the age of <em>10</em>"
+                    },
+                    "T_P_20" : {
+                        name : "People under 20yo",
+                        attribute : "T_P_20",
+                        description : "Total people below the age of <em>20</em>"
+                    },
+                    "T_M" : {
+                        name : "Males",
+                        attribute : "T_M",
+                        description : "Total people identifying as males. " +
+                                "Note that it is important to also include the <em>Females</em> attribute " +
+                                "if you are using this attribute. You should then weight <em>Females</em> " +
+                                "and <em>Males</em> differently, depending on which is of more interest " +
+                                "for your index."
+                    },
+                    "T_F" : {
+                        name : "Females",
+                        attribute : "T_F",
+                        description : "Total people identifying as females. " +
+                                "Note that it is important to also include the <em>Males</em> attribute " +
+                                "if you are using this attribute. You should then weight <em>Males</em> " +
+                                "and <em>Females</em> differently, depending on which is of more interest " +
+                                "for your index."
+                    }
+                };
+
+                var select  = document.createElement( "select" );
                 select.name = "attribute";
 
-                var option = document.createElement( "option" );
-                option.value = "";
+                var option        = document.createElement( "option" );
+                option.value     = "";
                 option.innerHTML = "Chose an attribute";
                 select.appendChild( option );
 
-                for ( var i = 0; i < attributes.length; i ++ ) {
+                for ( var attributeName in attributes ) {
                     option           = document.createElement( "option" );
-                    option.value     = attributes[ i ];
-                    option.innerHTML = attributes[ i ];
+                    option.value     = attributes[ attributeName ].attribute;
+                    option.innerHTML = attributes[ attributeName ].name;
                     select.appendChild( option );
                 }
 
                 $( select ).change( function() {
-                    console.log( $( this).val() );
-                    console.log( $( this ).closest( '.panel' ) );
-                    console.log( $( this ).closest( '.panel' ).find( '.panel-heading' ) );
-                    $( this ).closest( '.panel').find( '.panel-heading' ).html( $( this ).val() );
-                    $( '#btnAdd' ).prop( 'disabled', false );
+                    var value = attributes[ $( this).val() ];
+                    changePanelTitle( $( this ).closest( '.panel' ), value.name );
+                    if ( isAlreadyIncluded( value.name ) ) {
+
+                    } else {
+                        $('#btnAdd').prop('disabled', false);
+                    }
                 });
 
                 return select;
@@ -79,7 +179,26 @@
 
                 var cardTitle = document.createElement( "div" );
                 cardTitle.className = "panel-heading";
-                cardTitle.innerHTML = "Choose an interesting attribute";
+
+                var closeIcon       = document.createElement( "button" );
+                closeIcon.type      = "button";
+                closeIcon.className = "close";
+                closeIcon.innerHTML = "<span aria-hidden='true'>&times;</span><span class='sr-only'>Close</span>";
+                closeIcon.onclick   = function() {
+                    removeCard( $( this ).closest( '.panel' ) );
+                };
+                cardTitle.appendChild( closeIcon );
+
+                var titleLink       = document.createElement( "a" );
+                titleLink.innerHTML = "Choose an interesting attribute";
+                titleLink.style     = "display: block";
+                cardTitle.appendChild( titleLink );
+
+                cardTitle.onclick = function() {
+                    collapseAllCards();
+                    showCard( $( this ).closest( '.panel' ) );
+                };
+
                 return cardTitle;
             };
 
@@ -87,13 +206,13 @@
 
                 var values = [ 10, 20, 30, 40, 50, 60, 70, 80, 90 ];
 
-                var slider = document.createElement( "select" );
+                var slider       = document.createElement( "select" );
                 slider.className = "attribute";
-                slider.name = "weight";
+                slider.name      = "weight";
 
                 for ( var i = 10; i <= 90; i += 10 ) {
-                    var option = document.createElement( "option" );
-                    option.value = i;
+                    var option       = document.createElement( "option" );
+                    option.value     = i;
                     option.innerHTML = i + "%";
                     slider.appendChild( option );
                 }
@@ -102,34 +221,46 @@
 
             };
 
+            var createWarning = function() {
+                var warning       = document.createElement( "div" );
+                warning.className = "alert alert-danger";
+                warning.role      = "alert";
+                warning.style     = "display: none";
+                return warning;
+            };
+
             var createBody = function() {
 
-                var cardInner = document.createElement( "div" );
+                var cardInner       = document.createElement( "div" );
                 cardInner.className = "panel-body";
                 cardInner.appendChild( createDropdown() );
                 cardInner.appendChild( createSlider() );
+                cardInner.appendChild( createWarning() );
                 return cardInner;
 
             };
 
-            var card = document.createElement( "div" );
+            var card       = document.createElement( "div" );
             card.className = "card panel panel-default";
+            card.style     = "display: none";
             card.appendChild( createTitle() );
             card.appendChild( createBody() );
 
             return card;
         };
 
+        var getCurrentCard = function() {
+            return $( '#cards' ).find( '.card:not( .collapsed )' );
+        };
+
         var addNewCard = function() {
-
-            $( '#cards' ).find( '.card' ).addClass( 'collapsed' );
-            $( createCard() ).hide().appendTo( '#cards' ).show( 'fast' );
+            collapseAllCards();
+            $( '#cards' ).append( createCard() ).show( 'slideDown' );
             $( '#btnAdd' ).prop( 'disabled', true );
-
         };
 
         var finish = function() {
-
+            // TODO: Do we have at least one valid attribute?
         };
 
         addNewCard();

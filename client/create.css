@@ -12,16 +12,16 @@
     display: none;
 }
 
-.card.collapsed.panel .panel-heading {
-    display: block;
-}
-
-.card.collapsed.panel .panel-body {
-    display: none;
+.card.panel .alert {
+    margin-top: 1em;
 }
 
 ul, ol {
     list-style: none none;
     margin: 0;
     padding: 0;
+}
+
+#inputModelDescription {
+    height: 200px;
 }
