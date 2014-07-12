@@ -5,15 +5,12 @@
     <title>Leaflet.js playground</title>
     <link rel="stylesheet" href="leaflet.css" />
     <link rel="stylesheet" href="bootstrap/css/bootstrap.css" />
+	<link rel="stylesheet" href="stylesheet.css" />
+	<link rel="stylesheet" href="normalize.css" />
     <!--<script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>-->
     <script type="text/javascript" src="leaflet-src.js"></script>
-    <script type="text/javascript" src="file:///opt/data/gis/lga/shapefiles/lga.geojson"></script>
-    <style>
-        #map {
-            width: 90%;
-            height: 500px;
-        }
-    </style>
+    <script type="text/javascript" src="lga.geojson"></script>
+
 </head>
 <body>
 
@@ -28,8 +25,6 @@
     </div>
 
     <script type="text/javascript">
-
-        (function() {
 
             /**
              * Create map, setup basemap layer, and return it.
@@ -70,8 +65,62 @@
 
             L.geoJson( lgaBoundaries ).addTo( map );
 
-        })();
+		
+		function getColor(d) {
+			colorlist = ['#ffffcc', '#c2e699', '#78c679', '#31a354', '#006837'];
+			if (d < 11) {
+				return color[0];
+			}
+			else if (d < 21) {
+				return color[1];
+			}
+			else if (d < 31) {
+				return color[2];
+			}
+			else if (d < 41) {
+				return color[3];
+			}
+			else if (d < 51) {
+				return color[4];
+			}
+		}
+		
+		function style(feature) {
+			return {
+				fillColor: getColor(feature.properties.density),
+				weight: 2,
+				opacity: 1,
+				color: 'white',
+				dashArray: '3',
+				fillOpacity: 0.7
+			};
+		}
+		
+		
+		L.geoJson(lgaBoundaries, {style: style}).addTo(map);
+		
+		
+		//Code for the legend in the bottom right of the corner
+		var legend = L.control({position: 'bottomright'});
 
+		legend.onAdd = function (map) {
+
+			var div = L.DomUtil.create('div', 'info legend'),
+			grades = ['Lowest', 'Low', 'Medium', 'High', 'Highest'],
+			color = ['#ffffcc', '#c2e699', '#78c679', '#31a354', '#006837'];
+
+			// loop through our density intervals and generate a label with a colored square for each interval
+			div.innerHTML +='<ul>';
+			for (var i = 0; i < grades.length; i++) {
+				div.innerHTML +=
+				'<li><div class="legendBox" style="background:' + color[i] + '"></div> ' + '<div class="legendText">' + grades[i] + '</div></li>';
+			}
+			div.innerHTML +='</ul>';
+			
+			return div;
+		};
+
+		 legend.addTo(map);
     </script>
 
 </body>
