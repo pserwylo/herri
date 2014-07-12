@@ -1,4 +1,6 @@
-﻿CREATE TABLE b17b_aust_lga_short(
+﻿DROP TABLE IF EXISTS b17b_aust_lga_short;
+
+CREATE TABLE b17b_aust_lga_short(
 region_id character(8),
 F_1000_1249_15_19_yrs numeric,
 F_1000_1249_20_24_yrs numeric,

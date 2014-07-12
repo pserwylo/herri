@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS b04a_aust_lga_short;
+
 CREATE TABLE b04a_aust_lga_short(
 region_id character(8),
 Age_yr_0_M numeric,
