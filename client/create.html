@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Create your own herri model</title>
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.css" />
+	<link rel="stylesheet" href="normalize.css" />
+	<link rel="stylesheet" href="create.css" />
+    <script type="text/javascript" src="jquery-2.1.1.js"></script>
+    <script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>
+</head>
+<body>
+
+    <div class="container" role="main">
+
+        <div class="page-header">
+            <h1>Herri - Find <em>your</em> place in <em>your</em> community</h1>
+            <h2>Create your own model</h2>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div id="cards" class="panel-group"></div>
+            </div>
+            <div class="col-md-6">
+
+            </div>
+        </div>
+
+        <button id="btnAdd" class="btn btn-default">Add another</button>
+        <button id="btnFinished" class="btn btn-default">Finished!</button>
+
+    </div>
+
+    <script type="text/javascript">
+
+        var attributes = [
+            "People under 5yo",
+            "People under 10yo",
+            "People under 15yo",
+            "People under 20yo",
+            "People under 25yo",
+            "People under 30yo",
+            "Number of males",
+            "Number of females"
+        ];
+
+        var createCard = function() {
+
+            var createDropdown = function() {
+
+                var select = document.createElement( "select" );
+                select.name = "attribute";
+
+                var option = document.createElement( "option" );
+                option.value = "";
+                option.innerHTML = "Chose an attribute";
+                select.appendChild( option );
+
+                for ( var i = 0; i < attributes.length; i ++ ) {
+                    option           = document.createElement( "option" );
+                    option.value     = attributes[ i ];
+                    option.innerHTML = attributes[ i ];
+                    select.appendChild( option );
+                }
+
+                $( select ).change( function() {
+                    console.log( $( this).val() );
+                    console.log( $( this ).closest( '.panel' ) );
+                    console.log( $( this ).closest( '.panel' ).find( '.panel-heading' ) );
+                    $( this ).closest( '.panel').find( '.panel-heading' ).html( $( this ).val() );
+                    $( '#btnAdd' ).prop( 'disabled', false );
+                });
+
+                return select;
+            };
+
+            var createTitle = function() {
+
+                var cardTitle = document.createElement( "div" );
+                cardTitle.className = "panel-heading";
+                cardTitle.innerHTML = "Choose an interesting attribute";
+                return cardTitle;
+            };
+
+            var createSlider = function() {
+
+                var values = [ 10, 20, 30, 40, 50, 60, 70, 80, 90 ];
+
+                var slider = document.createElement( "select" );
+                slider.className = "attribute";
+                slider.name = "weight";
+
+                for ( var i = 10; i <= 90; i += 10 ) {
+                    var option = document.createElement( "option" );
+                    option.value = i;
+                    option.innerHTML = i + "%";
+                    slider.appendChild( option );
+                }
+
+                return slider;
+
+            };
+
+            var createBody = function() {
+
+                var cardInner = document.createElement( "div" );
+                cardInner.className = "panel-body";
+                cardInner.appendChild( createDropdown() );
+                cardInner.appendChild( createSlider() );
+                return cardInner;
+
+            };
+
+            var card = document.createElement( "div" );
+            card.className = "card panel panel-default";
+            card.appendChild( createTitle() );
+            card.appendChild( createBody() );
+
+            return card;
+        };
+
+        var addNewCard = function() {
+
+            $( '#cards' ).find( '.card' ).addClass( 'collapsed' );
+            $( createCard() ).hide().appendTo( '#cards' ).show( 'fast' );
+            $( '#btnAdd' ).prop( 'disabled', true );
+
+        };
+
+        var finish = function() {
+
+        };
+
+        addNewCard();
+
+        $( '#btnAdd' ).click( function() { addNewCard(); } );
+        $( '#btnFinish' ).click( function() { finish(); } );
+
+
+    </script>
+
+</body>
+</html>
