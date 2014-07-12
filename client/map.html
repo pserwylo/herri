@@ -52,26 +52,26 @@
 		
 		    var getColor = function(value) {
                 var colorlist = ['#ffffcc', '#c2e699', '#78c679', '#31a354', '#006837'];
-                if (value < 11) {
-                    return colorlist[0];
-                }
-                else if (value < 21) {
-                    return colorlist[1];
-                }
-                else if (value < 31) {
-                    return colorlist[2];
-                }
-                else if (value < 41) {
-                    return colorlist[3];
-                }
-                else if (value < 51) {
-                    return colorlist[4];
-                }
+				if (value < 1982) {
+					return colorlist[0];
+				} 
+				else if (value < 6827) {
+					return colorlist[1];
+				} 
+				else if (value < 19279) {
+					return colorlist[2];
+				} 
+				else if (value < 57891) {
+					return colorlist[3];
+				} 
+				else if (value < 1041839) {
+					return colorlist[4];
+				}
             };
 
             var style = function( feature ) {
                 return {
-                    fillColor: getColor( feature.properties.density ),
+                    fillColor: getColor( feature.properties.tot_p_p ),
                     weight: 2,
                     opacity: 1,
                     color: 'white',
@@ -155,7 +155,7 @@
                     };
 
                     L.geoJson(response, {
-                        style: dataStyle
+                        style: style
                     }).addTo(map);
 
                 };
@@ -173,7 +173,7 @@
                     };
 
                     L.geoJson(response, {
-                        style: dataStyle
+                        style: style
                     }).addTo(map);
 
                 };
