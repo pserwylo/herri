@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Leaflet.js playground</title>
+    <link rel="stylesheet" href="leaflet.css" />
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.css" />
+    <!--<script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>-->
+    <script type="text/javascript" src="leaflet-src.js"></script>
+    <script type="text/javascript" src="file:///opt/data/gis/lga/shapefiles/lga.geojson"></script>
+    <style>
+        #map {
+            width: 100%;
+            height: 400px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" role="main">
+
+        <div class="page-header">
+            <h1>Herri - Find <em>your</em> place in <em>your</em> community</h1>
+        </div>
+
+        <div id="map" class="img-thumbnail"></div>
+
+    </div>
+
+    <script type="text/javascript">
+
+        (function() {
+
+            /**
+             * Create map, setup basemap layer, and return it.
+             * @return L.Map
+             */
+            var initMap = function() {
+
+                var bounds = [
+                    [ -9.0, 111.3 ],
+                    [ -46.0, 159.2 ]
+                ];
+
+                var map = L.map('map', {
+                    maxBounds : bounds
+                }).setView([ -42.742572964499999, 147.258816064 ], 4);
+
+                var createOsmLayer = function() {
+
+                    var baseMapUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+                    var baseMapAttrib = 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
+                    return L.tileLayer(
+                        baseMapUrl,
+                        {
+                            minZoom: 3,
+                            maxZoom: 14,
+                            attribution: baseMapAttrib
+                        }
+                    );
+
+                };
+
+                createOsmLayer().addTo( map );
+                return map;
+
+            };
+
+            var map = initMap();
+
+            L.geoJson( lgaBoundaries ).addTo( map );
+
+        })();
+
+    </script>
+
+</body>
+</html>
