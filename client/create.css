@@ -16,6 +16,10 @@
     margin-top: 1em;
 }
 
+.card.panel.panel-danger .panel-heading a {
+    color: #a94442;
+}
+
 ul, ol {
     list-style: none none;
     margin: 0;

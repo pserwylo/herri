@@ -58,7 +58,9 @@
         var getWeights = function() {
 
             var data = {
-                weights : []
+                name        : $( 'inputModelName' ).val(),
+                description : $( 'inputModelDescription' ).val(),
+                weights     : []
             };
 
             $( '#cards' ).find( '.card' ).each( function( i, item ) {
@@ -88,19 +90,30 @@
 
         };
 
+        var showAlreadyUsedWarning = function( card ) {
+            var message = "This attribute is already being used. Please chose another.";
+            $( card ).find( '.alert' ).html( message ).show( 'fast');
+            $( card ).addClass( 'panel-danger' );
+        };
+
+        var hideWarning = function( card ) {
+            $( card ).find( '.alert' ).html( "" ).hide();
+            $( card ).removeClass( 'panel-danger' );
+        };
+
         var changePanelTitle = function( panel, title ) {
             $( panel ).find( '.panel-heading a' ).html( title );
         };
 
         var collapseAllCards = function() {
             var cards = $( '#cards' ).find( '.card' );
-            cards.find( '.panel-heading' ).show( 'slideUp' );
-            cards.find( '.panel-body' ).hide( 'slideUp' );
+            cards.find( '.panel-heading' ).show( 'fast' );
+            cards.find( '.panel-body' ).hide( 'fast' );
         };
 
         var showCard = function( card ) {
-            $( card ).find( '.panel-heading').hide( 'slideDown' );
-            $( card ).find( '.panel-body').show( 'slideUp' );
+            $( card ).find( '.panel-heading').hide( 'fast' );
+            $( card ).find( '.panel-body').show( 'fast' );
         };
 
         var removeCard = function( card ) {
@@ -163,11 +176,13 @@
                 }
 
                 $( select ).change( function() {
+                    var card = $( this ).closest( '.panel' );
                     var value = attributes[ $( this).val() ];
-                    changePanelTitle( $( this ).closest( '.panel' ), value.name );
-                    if ( isAlreadyIncluded( value.name ) ) {
-
+                    changePanelTitle( card, value.name );
+                    if ( isAlreadyIncluded( value.attribute ) ) {
+                        showAlreadyUsedWarning( card );
                     } else {
+                        hideWarning( card );
                         $('#btnAdd').prop('disabled', false);
                     }
                 });
@@ -225,7 +240,7 @@
                 var warning       = document.createElement( "div" );
                 warning.className = "alert alert-danger";
                 warning.role      = "alert";
-                warning.style     = "display: none";
+                warning.style     = "display: none;";
                 return warning;
             };
 
@@ -255,7 +270,9 @@
 
         var addNewCard = function() {
             collapseAllCards();
-            $( '#cards' ).append( createCard() ).show( 'slideDown' );
+            var card = createCard();
+            $( '#cards' ).append( card ).show( 'slideDown' );
+            hideWarning( card );
             $( '#btnAdd' ).prop( 'disabled', true );
         };
 
