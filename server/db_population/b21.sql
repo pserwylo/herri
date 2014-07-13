@@ -121,7 +121,7 @@ P_85_ov_Tot numeric,
 P_Tot_prvided_unpaid_assist numeric,
 P_Tot_No_unpaid_asst_prvided numeric,
 P_Tot_Unpaid_assist_ns numeric,
-P_Tot_Tot, numeric
+P_Tot_Tot numeric
 )
 WITH(OIDS=FALSE);
 \copy b21_aust_lga_short from 'census2011/2011Census_B21_AUST_LGA_short.csv' with (format csv, header);
