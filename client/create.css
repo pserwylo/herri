@@ -12,16 +12,20 @@
     display: none;
 }
 
-.card.collapsed.panel .panel-heading {
-    display: block;
+.card.panel .alert {
+    margin-top: 1em;
 }
 
-.card.collapsed.panel .panel-body {
-    display: none;
+.card.panel.panel-danger .panel-heading a {
+    color: #a94442;
 }
 
 ul, ol {
     list-style: none none;
     margin: 0;
     padding: 0;
+}
+
+#inputModelDescription {
+    height: 200px;
 }
