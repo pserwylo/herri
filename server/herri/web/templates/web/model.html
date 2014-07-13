@@ -7,12 +7,12 @@
 		</div>
 	
 		<div class="col-md-3">
-			<div id="title" class="text panel panel-default">
-				<h2>
+			<div id="modelDetails" class="text panel panel-default">
+				<h2 id="modelName">
 					Autism support groups
 				</h2>	
 				
-				<p>
+				<p id="modelDescription">
 					This is a map of population density overlayed with markers marking where autism support groups are located within Victoria.
 				</p>
 			</div>
@@ -68,7 +68,7 @@
 
         var style = function( feature ) {
             return {
-                fillColor: getColor( feature.properties.tot_p_p ),
+                fillColor: getColor( feature.properties.value ),
                 weight: 2,
                 opacity: 1,
                 color: 'white',
@@ -147,16 +147,17 @@
             });
         };
 
-        var loadIndexLayer = function( map ) {
+        var loadIndexLayer = function( map, modelId ) {
 
             var models = {
                 population: "cite:lga_population",
                 populationSimple: "cite:lga_population_simple",
-                populationDynamic: "cite:lga_population_dynamic"
+                populationDynamic: "cite:lga_population_dynamic",
+                modelIndex: "cite:model_results_geoserved"
             };
 
             var additionalParams = {
-                viewparams: "simplify_tolerance:0.01"
+                viewparams: "simplify_tolerance:0.01;model_run_id:" + modelId
             };
 
             var callback = function (response) {
@@ -167,10 +168,10 @@
 
             };
 
-            loadDataLayer( map, models.populationDynamic, callback, additionalParams )
+            loadDataLayer( map, models.modelIndex, callback, additionalParams )
         };
 
-        var loadServiceLayer = function( map ) {
+        var loadServiceLayer = function( map, modelId ) {
 
             var callback = function (response) {
 
@@ -239,14 +240,29 @@
             });
         };
 
+
+        var loadModel = function( modelId ) {
+            loadIndexLayer( map, modelId );
+            if ( modelId == 1 ) { /* autism model... */
+                loadServiceLayer( map, modelId );
+            }
+            $( '#modelName' ).html( '' );
+            $( '#modelDescription' ).html( '' );
+            $.getJSON( '/api/attribute_model/' + modelId + '/', function( data ) {
+                var model = data.pop();
+                $( '#modelName' ).html( model.fields.name );
+                $( '#modelDescription' ).html( model.fields.description );
+            });
+        };
+
+
         var map = initMap();
         map.on( 'zoomend', showZoomLevel );
         showZoomLevel();
         createOsmLayer().addTo( map );
         createLegend().addTo( map );
-        loadIndexLayer( map );
-        loadServiceLayer( map );
-        // setupSearch( map );
+
+        loadModel( {{ model_id }} );
 
     </script>
 

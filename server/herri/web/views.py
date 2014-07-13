@@ -9,7 +9,7 @@ def index(request):
 
 
 def model(request, model_id):
-    context = {'model_id', model_id}
+    context = {'model_id': model_id}
     return render(request, "web/model.html", context)
 
 
