@@ -108,7 +108,22 @@
 
                 return legend;
             };
+			
+			var loadDataQuery = function() {
+                var host = 'overpass-api.de';
+                var port = 80;
+                var path = '/api/interpreter';
+				var query = '?data=node[name=\"Gielgen\"];out;';
+                var dataUrl = "http://" + host + ":" + port + path + query;
 
+                $.ajax({
+                    type: "GET",
+                    url: dataUrl,
+                    dataType: 'xml',
+                    success: function(data){console.log('data')}
+                });
+            };
+			
             var loadDataLayer = function( map, type, callback, additionalParams ) {
                 var host = 'ec2-54-79-46-214.ap-southeast-2.compute.amazonaws.com';
                 var port = 8080;
@@ -239,6 +254,7 @@
             loadIndexLayer( map );
             // loadServiceLayer( map );
             setupSearch( map );
+			loadDataQuery();
 
     </script>
 
