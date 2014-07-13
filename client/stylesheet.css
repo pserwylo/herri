@@ -1,7 +1,7 @@
 #map{
-    height: 400px;
-    width: 100%;
-}
+		height: 600px;
+		width: 100%;
+	}
 	
 .legendText {
 	display: inline;
@@ -28,6 +28,6 @@ li {
 	list-style-type:none;
 }
 
-#search-container {
-    margin-bottom: 0.5em;
+div h2 , div p{
+	text-align: center;
 }
