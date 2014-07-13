@@ -46,6 +46,8 @@
     <script type="text/javascript" src="/static/web/bootstrap/js/bootstrap.js"></script>
     <script type="text/javascript">
 
+        var attributes = null;
+
         var getWeights = function() {
 
             var data = {
@@ -120,9 +122,11 @@
 
             // "Religion", "Language", "Ancestry"
 
+            console.log( attributes );
+
             var createDropdown = function() {
 
-                var attributes = {
+                var attributes_old = {
                     "T_P_10" : {
                         name : "People under 10yo",
                         attribute : "T_P_10",
@@ -153,18 +157,21 @@
                     }
                 };
 
-                var select  = document.createElement( "select" );
-                select.name = "attribute";
+                var select       = document.createElement( "select" );
+                select.className = "attribute";
+                select.name      = "attribute";
 
                 var option        = document.createElement( "option" );
                 option.value     = "";
-                option.innerHTML = "Chose an attribute";
+                option.innerHTML = "Choose an attribute";
                 select.appendChild( option );
 
-                for ( var attributeName in attributes ) {
+                for ( var i = 0; i < attributes.length; i ++ ) {
+                    var value = attributes[ i ].pk;
+                    var name  = attributes[ i ].fields.name;
                     option           = document.createElement( "option" );
-                    option.value     = attributes[ attributeName ].attribute;
-                    option.innerHTML = attributes[ attributeName ].name;
+                    option.value     = value;
+                    option.innerHTML = name;
                     select.appendChild( option );
                 }
 
@@ -212,10 +219,8 @@
 
             var createSlider = function() {
 
-                var values = [ 10, 20, 30, 40, 50, 60, 70, 80, 90 ];
-
                 var slider       = document.createElement( "select" );
-                slider.className = "attribute";
+                slider.className = "weight";
                 slider.name      = "weight";
 
                 for ( var i = 1; i <= 10; i ++ ) {
@@ -270,8 +275,7 @@
         };
 
         var finish = function() {
-            // TODO: Do we have at least one valid attribute?
-
+            // TODO: Actually validate the data properly...
             $.post(
                 "http://localhost:8000/api/attribute_models/new/",
                 { model : JSON.stringify( getWeights() ) }
@@ -279,9 +283,12 @@
 
         };
 
-        addNewCard();
+        $.get( '/api/attributes', function( data ) {
+            attributes = data;
+            addNewCard();
+        });
 
-        $( '#btnAdd' ).click( function() { addNewCard(); } );
+        $( '#btnAdd'      ).click( function() { addNewCard(); } );
         $( '#btnFinished' ).click( function() { finish(); } );
 
 

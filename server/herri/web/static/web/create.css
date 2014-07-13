@@ -31,3 +31,13 @@ ul, ol {
     width: 100%;
     margin-top: 1em;
 }
+
+select.attribute {
+    width: 70%;
+    padding: 0.5em;
+}
+
+select.weight {
+    width: 25%;
+    padding: 0.5em;
+}
