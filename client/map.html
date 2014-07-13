@@ -15,17 +15,22 @@
     <div class="container" role="main">
 
         <div class="page-header">
-            <h1>Herri - Find <em>your</em> place in <em>your</em> community</h1>
+            <h1>
+                <img src="images/herri-logo.jpg" style="height: 70px;" alt="Herri logo" />
+                <small>Find your place in your community</small>
+            </h1>
         </div>
 
-        <div id="search-container" class="input-group">
+        <!--<div id="search-container" class="input-group">
             <span class="input-group-addon">Search:</span>
             <input id="searchAndAddLayer" class="form-control" placeholder="Search to add new services to the map" />
-        </div>
+        </div>-->
 
         <div id="map" class="img-thumbnail"></div>
 
+        <!--
         <div id="zoom-level"></div>
+        -->
 
     </div>
 
@@ -237,8 +242,8 @@
             createOsmLayer().addTo( map );
             createLegend().addTo( map );
             loadIndexLayer( map );
-            // loadServiceLayer( map );
-            setupSearch( map );
+            loadServiceLayer( map );
+            // setupSearch( map );
 
     </script>
 

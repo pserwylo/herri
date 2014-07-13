@@ -1,4 +1,4 @@
-from django.shortcuts import render
+import json
 from api.models import AttributeModel, Attribute, Weighting
 from django.core import serializers
 from django.http import HttpResponse
