@@ -27,7 +27,7 @@
 
                 <textarea id="inputModelDescription" class="form-control" placeholder="What is the model about?"></textarea>
 
-                <div class="btn-group">
+                <!--<div class="btn-group">
                     <button class="btn btn-default btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
                         Services <span class="caret"></span>
                     </button>
@@ -46,7 +46,7 @@
                         <li><a href="#" class="parks">Parks</a></li>
                         <li><a href="#" class="house">House</a></li>
                     </ul>
-                </div>
+                </div>-->
             </div>
         </div>
         <div class="col-md-4">
@@ -80,10 +80,13 @@
             };
 
             $( '#cards' ).find( '.card' ).each( function( i, item ) {
-                data.weightings.push({
-                    attribute : $( item ).find( 'select[name=attribute]' ).val(),
-                    weight    : $( item ).find( 'select[name=weight]'    ).val()
-                });
+                var attribute = $( item ).find( 'select[name=attribute]' ).val();
+                if ( attribute != "" ) {
+                    data.weightings.push({
+                        attribute: $(item).find('select[name=attribute]').val(),
+                        weight: $(item).find('select[name=weight]').val()
+                    });
+                }
             });
 
             return data;
@@ -266,7 +269,16 @@
             // TODO: Actually validate the data properly...
             $.post(
                 "http://localhost:8000/api/attribute_models/new/",
-                { model : JSON.stringify( getWeights() ) }
+                { model : JSON.stringify( getWeights() ) },
+                function( data ) {
+                    console.log( data );
+                    if ( data.hasOwnProperty( 'error' ) ) {
+                        alert( "Awww, an error occured while saving your model... :(" );
+                    } else {
+                        var id = data.pop().pk;
+                        document.location = "/model/" + id;
+                    }
+                }
             );
 
         };
