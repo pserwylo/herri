@@ -168,9 +168,14 @@
 
                 $( select ).change( function() {
                     var card = $( this ).closest( '.panel' );
-                    var value = attributes[ $( this).val() ];
-                    changePanelTitle( card, value.fields.name );
-                    if ( isAlreadyIncluded( value.attribute ) ) {
+                    var value = "Choose an interesting attribute";
+                    for ( var i = 0; i < attributes.length; i ++ ) {
+                        if ( attributes[ i ].pk == $( this).val() ) {
+                            value = attributes[ i ].fields.name;
+                        }
+                    }
+                    changePanelTitle( card, value );
+                    if ( isAlreadyIncluded( value ) ) {
                         showAlreadyUsedWarning( card );
                     } else {
                         hideWarning( card );
