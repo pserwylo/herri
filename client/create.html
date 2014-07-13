@@ -60,11 +60,11 @@
             var data = {
                 name        : $( 'inputModelName' ).val(),
                 description : $( 'inputModelDescription' ).val(),
-                weights     : []
+                weightings  : []
             };
 
             $( '#cards' ).find( '.card' ).each( function( i, item ) {
-                data.weights.push({
+                data.weightings.push({
                     attribute : $( item ).find( 'select[name=attribute]' ).val(),
                     weight    : $( item ).find( 'select[name=weight]'    ).val()
                 });
@@ -78,8 +78,8 @@
 
             var data = getWeights();
             var count = 0;
-            for ( var i = 0; i < data.weights.length; i ++ ) {
-                if ( data.weights[ i ].attribute == attributeName ) {
+            for ( var i = 0; i < data.weightings.length; i ++ ) {
+                if ( data.weightings[ i ].attribute == attributeName ) {
                     count ++;
                     if ( count > 1 ) {
                         return true;
