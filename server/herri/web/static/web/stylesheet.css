@@ -1,6 +1,11 @@
 #map{
-	height: 600px;
+	height: 500px;
 	width: 100%;
+}
+
+.panel.text p {
+    text-align: left;
+    padding: 1em;
 }
 	
 .legendText {
@@ -28,6 +33,6 @@ li {
 	list-style-type:none;
 }
 
-div h2 , div p{
+.panel h2 {
 	text-align: center;
 }
