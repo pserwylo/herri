@@ -1,0 +1,31 @@
+.card.panel {
+    margin-bottom: 1em;
+    display: block;
+}
+
+.card.panel .panel-body {
+    padding-top: 2em;
+    padding-bottom: 2em;
+}
+
+.card.panel .panel-heading {
+    display: none;
+}
+
+.card.panel .alert {
+    margin-top: 1em;
+}
+
+.card.panel.panel-danger .panel-heading a {
+    color: #a94442;
+}
+
+ul, ol {
+    list-style: none none;
+    margin: 0;
+    padding: 0;
+}
+
+#inputModelDescription {
+    height: 200px;
+}
