@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Herri - Find your place in your community</title>
+    <link rel="stylesheet" href="/static/web/leaflet.css" />
+    <link rel="stylesheet" href="/static/web/bootstrap/css/bootstrap.css" />
+	<link rel="stylesheet" href="/static/web/stylesheet.css" />
+	<link rel="stylesheet" href="/static/web/normalize.css" />
+
+    {% block stylesheets %}{% endblock %}
+
+</head>
+<body>
+
+    <div class="container" role="main">
+
+        <div class="page-header">
+            <h1>
+                <img src="/static/web/images/herri-logo.jpg" style="height: 70px;" alt="Herri logo" />
+                <small>Find your place in your community</small>
+            </h1>
+        </div>
+
+        {% block content %}{% endblock %}
+
+    </div>
+
+    <script type="text/javascript" src="/static/web/leaflet-src.js"></script>
+    <script type="text/javascript" src="/static/web/jquery-2.1.1.js"></script>
+
+    {% block javascript %}{% endblock %}
+
+</body>
+</html>

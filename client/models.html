@@ -6,72 +6,110 @@
 	<meta name="copyright" content="2014 Ben Specht">
 	<link rel="stylesheet" href="bootstrap/css/bootstrap.css" />
 	<link rel="stylesheet" href="models.css" />
+	<script type="text/javascript" src="jquery-2.1.1.js"></script>
 	<title>
 		Leaflet Testing
 	</title>
     </head>
     
     <body>
+	
+		<div id="content">
+		
+		</div>
+	
 		<script>
-			var maps = [
+			/*var maps = [
 				{
-					"Name": "TestName1",
-					"Description": "TestDescription1"
+					"pk": 1, 
+					"model": "api.attributemodel", 
+					"fields":   {
+									"weightings": [1], 
+									"user": 1, 
+									"name": "Basic population model", 
+									"description": "Gives a weighting which is 90% of population"
+								}
 				},
 				{
-					"Name": "TestName2",
-					"Description": "TestDescription2"
+					"name": "TestName2",
+					"description": "TestDescription2"
 				},
 				{
-					"Name": "TestName3",
-					"Description": "TestDescription3"
+					"name": "TestName3",
+					"description": "TestDescription3"
 				},
 				{
-					"Name": "TestName4",
-					"Description": "TestDescritption4"
+					"name": "TestName4",
+					"description": "TestDescritption4"
 				},
 				{
-					"Name": "TestName5",
-					"Description": "TestDescription5"
+					"name": "TestName5",
+					"description": "TestDescription5"
 				},
 				{
-					"Name": "TestName6",
-					"Description": "TestDescription6"
+					"name": "TestName6",
+					"description": "TestDescription6"
 				},
 				{
-					"Name": "TestName7",
-					"Description": "TestDescription7"
+					"name": "TestName7",
+					"description": "TestDescription7"
 				},
 				{
-					"Name": "TestName8",
-					"Description": "TestDescription8"
+					"name": "TestName8",
+					"description": "TestDescription8"
 				},
 				{
-					"Name": "TestName9",
-					"Description": "TestDescription9"
+					"name": "TestName9",
+					"description": "TestDescription9"
 				},
 				{
-					"Name": "TestName10",
-					"Description": "TestDescription10"
+					"name": "TestName10",
+					"description": "TestDescription10"
 				},
 				{
-					"Name": "TestName11",
-					"Description": "TestDescription11"
+					"name": "TestName11",
+					"description": "TestDescription11"
 				},
 				{
-					"Name": "TestName12",
-					"Description": "TestDescription12"
+					"name": "TestName12",
+					"description": "TestDescription12"
 				}
-			];
+			];*/
 			
-			var rowStart = "<div class='row'>";
-			var rowEnd   = "</div>";
-			document.write( rowStart );
-			for (i = 0; i < maps.length; i++) {
-				if ( i > 0 && i % 3 == 0 ) document.write( rowEnd + rowStart );
-				document.write('<a><div class="panel panel-default col-md-3 panelList"><div class="panel-body">' + maps[i].Name + '</br>' + maps[i].Description + '</div></div></a>');
-			}
-			document.write( rowEnd );
+			$.getJSON( 'http://herri.serwylo.com/api/attribute_models', function( data ){ 
+					
+					var rowStart = "<div class='row'>";
+					var rowEnd   = "</div>";
+					
+					var content = document.getElementById( 'content' );
+					
+					var row = document.createElement( 'div' );
+					row.className = 'row';
+					
+					for (i = 0; i < data.length; i++) {
+						if ( i > 0 && i % 3 == 0 ) {
+							content.appendChild( row );
+							row = document.createELement( "div" );
+							row.className = 'row';
+						}
+						
+						var panel = document.createElement( 'a' );
+						var link = "http://herri.serwylo.com/model/" + data[i].pk;
+						panel.setAttribute('href', link);
+						panel.className = 'col-md-3';
+						panel.innerHTML = 
+							'<div class="panel panel-default panelList">' +
+								'<div class="panel-body"><h3>' + 
+									data[i].fields.name + 
+									'</h3></br>' + 
+									data[i].fields.description + 
+								'</div>' + 
+							'</div>';
+						row.appendChild( panel );
+					};
+					content.appendChild( row );
+				}
+			);
 		</script>
     </body>    
 

@@ -1,6 +1,11 @@
 #map{
-    height: 400px;
-    width: 100%;
+	height: 500px;
+	width: 100%;
+}
+
+.panel.text p {
+    text-align: left;
+    padding: 1em;
 }
 	
 .legendText {
@@ -28,6 +33,6 @@ li {
 	list-style-type:none;
 }
 
-#search-container {
-    margin-bottom: 0.5em;
+.panel h2 {
+	text-align: center;
 }

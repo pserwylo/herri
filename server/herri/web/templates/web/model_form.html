@@ -1,65 +1,58 @@
-<!DOCTYPE html>
-<html>
-<head lang="en">
-    <meta charset="UTF-8">
-    <title>Create your own herri model</title>
-    <link rel="stylesheet" href="bootstrap/css/bootstrap.css" />
-	<link rel="stylesheet" href="normalize.css" />
-	<link rel="stylesheet" href="create.css" />
-    <script type="text/javascript" src="jquery-2.1.1.js"></script>
-    <script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>
-</head>
-<body>
+{% extends "web/base.html" %}
 
-    <div class="container" role="main">
+{% block stylesheets %}
+    <link rel="stylesheet" href="/static/web/create.css" />
+{% endblock %}
 
-        <div class="page-header">
-            <h1>Herri - Find <em>your</em> place in <em>your</em> community</h1>
-            <h2>Create your own model</h2>
+{%block content %}
+    <div class="row">
+        <div class="col-md-4">
+            <h3>How to design a model</h3>
+            <p>
+                You may want to create a new business or community service in order to serve your community. The "herri" model builder allows you to arrange separate populations measured by the census into a model and give them your desired weighting out of 10. This allows you to see where your community is.
+            </p>
+            <p>
+                You should be aware of the <a href="https://en.wikipedia.org/wiki/Ecological_fallacy">ecological fallacy</a> and the <a href="https://en.wikipedia.org/wiki/Modifiable_Areal_Unit_Problem">modifiable areal unit problem</a>.
+            </p>
         </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <h3>Describe your model</h3>
 
-        <div class="row">
-            <div class="col-md-4">
-                <h3>How to design a model</h3>
-                <p>Some text explaining why this is awesome.</p>
-                <p>Some text educating as to the "proper" way to do this.</p>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    <h3>Describe your model</h3>
-
-                    <div class="input-group-lg">
-                        <label for="inputModelName">Name of model</label>
-                        <input id="inputModelName" type="text" class="form-control" />
-                    </div>
-
-                    <div class="input-group">
-                        <label for="inputModelDescription">Why did you create this model?</label>
-                        <textarea id="inputModelDescription" class="form-control"></textarea>
-                    </div>
+                <div class="input-group-lg">
+                    <input id="inputModelName" type="text" class="form-control" placeholder="Name your model" />
                 </div>
-            </div>
-            <div class="col-md-4">
 
-                <h3>Choose what to include</h3>
-
-                <div id="cards" class="panel-group"></div>
-
-                <button id="btnAdd" class="btn btn-default">Add another</button>
-                <button id="btnFinished" class="btn btn-primary">Save and view</button>
-
+                <textarea id="inputModelDescription" class="form-control" placeholder="What is the model about?"></textarea>
             </div>
         </div>
+        <div class="col-md-4">
 
+            <h3>Choose what to include</h3>
+
+            <div id="cards" class="panel-group"></div>
+
+            <button id="btnAdd" class="btn btn-default">Add another</button>
+            <button id="btnFinished" class="btn btn-primary">Save and view</button>
+
+        </div>
     </div>
 
+{% endblock %}
+
+{% block javascript %}
+
+
+    <script type="text/javascript" src="/static/web/bootstrap/js/bootstrap.js"></script>
     <script type="text/javascript">
+
+        var attributes = null;
 
         var getWeights = function() {
 
             var data = {
-                name        : $( 'inputModelName' ).val(),
-                description : $( 'inputModelDescription' ).val(),
+                name        : $('#inputModelName').val(),
+                description : $('#inputModelDescription').val(),
                 weightings  : []
             };
 
@@ -127,9 +120,13 @@
         // after adding them to the dom.
         var createCard = function() {
 
+            // "Religion", "Language", "Ancestry"
+
+            console.log( attributes );
+
             var createDropdown = function() {
 
-                var attributes = {
+                var attributes_old = {
                     "T_P_10" : {
                         name : "People under 10yo",
                         attribute : "T_P_10",
@@ -160,18 +157,21 @@
                     }
                 };
 
-                var select  = document.createElement( "select" );
-                select.name = "attribute";
+                var select       = document.createElement( "select" );
+                select.className = "attribute";
+                select.name      = "attribute";
 
                 var option        = document.createElement( "option" );
                 option.value     = "";
-                option.innerHTML = "Chose an attribute";
+                option.innerHTML = "Choose an attribute";
                 select.appendChild( option );
 
-                for ( var attributeName in attributes ) {
+                for ( var i = 0; i < attributes.length; i ++ ) {
+                    var value = attributes[ i ].pk;
+                    var name  = attributes[ i ].fields.name;
                     option           = document.createElement( "option" );
-                    option.value     = attributes[ attributeName ].attribute;
-                    option.innerHTML = attributes[ attributeName ].name;
+                    option.value     = value;
+                    option.innerHTML = name;
                     select.appendChild( option );
                 }
 
@@ -219,16 +219,14 @@
 
             var createSlider = function() {
 
-                var values = [ 10, 20, 30, 40, 50, 60, 70, 80, 90 ];
-
                 var slider       = document.createElement( "select" );
-                slider.className = "attribute";
+                slider.className = "weight";
                 slider.name      = "weight";
 
-                for ( var i = 10; i <= 90; i += 10 ) {
+                for ( var i = 1; i <= 10; i ++ ) {
                     var option       = document.createElement( "option" );
                     option.value     = i;
-                    option.innerHTML = i + "%";
+                    option.innerHTML = i + " / 10";
                     slider.appendChild( option );
                 }
 
@@ -277,16 +275,23 @@
         };
 
         var finish = function() {
-            // TODO: Do we have at least one valid attribute?
+            // TODO: Actually validate the data properly...
+            $.post(
+                "http://localhost:8000/api/attribute_models/new/",
+                { model : JSON.stringify( getWeights() ) }
+            );
+
         };
 
-        addNewCard();
+        $.get( '/api/attributes', function( data ) {
+            attributes = data;
+            addNewCard();
+        });
 
-        $( '#btnAdd' ).click( function() { addNewCard(); } );
-        $( '#btnFinish' ).click( function() { finish(); } );
+        $( '#btnAdd'      ).click( function() { addNewCard(); } );
+        $( '#btnFinished' ).click( function() { finish(); } );
 
 
     </script>
 
-</body>
-</html>
+{% endblock %}

@@ -1,4 +1,4 @@
-from django.shortcuts import render
+import json
 from api.models import AttributeModel, Attribute, Weighting
 from django.core import serializers
 from django.http import HttpResponse
@@ -69,6 +69,17 @@ def save_attribute_model(request):
         new_model['description'] = weighting['description']
         new_model['name'] = weighting['name']
         new_model.save()
+
+        try:
+            sql = new_model.get_model_sql()
+            cursor = connections['gov2014db'].cursor()
+            cursor.execute(sql)
+
+        except Exception as e:
+            json_data = "{'error': 'MODEL NOT SAVED TO DATABASE %s'}" % (`e`)
+
+            return HttpResponse(json_data, content_type='application/json')            
+
 
         return get_attribute_model(request, new_model.id)
 

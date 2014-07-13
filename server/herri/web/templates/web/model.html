@@ -1,0 +1,254 @@
+{% extends "web/base.html" %}
+
+{% block content %}
+	<div class="row">
+		<div class="col-md-9">
+			<div id="map" class="img-thumbnail"></div>
+		</div>
+	
+		<div class="col-md-3">
+			<div id="title" class="text panel panel-default">
+				<h2>
+					Autism support groups
+				</h2>	
+				
+				<p>
+					This is a map of population density overlayed with markers marking where autism support groups are located within Victoria.
+				</p>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+
+    <script type="text/javascript">
+
+        var mapBounds = [
+            [ -9.0, 111.3 ],
+            [ -46.0, 159.2 ]
+        ];
+
+        /**
+         * Create map, setup basemap layer, and return it.
+         * @return L.Map
+         */
+        var initMap = function() {
+
+            var map = L.map('map', {
+                maxBounds : mapBounds
+            }).setView([ -42.742572964499999, 147.258816064 ], 4);
+
+            return map;
+
+        };
+
+        var showZoomLevel = function() {
+            $( '#zoom-level' ).html( 'Zoom level: ' + map.getZoom() );
+        };
+
+        var getColor = function(value) {
+            var colorlist = ['#ffffcc', '#c2e699', '#78c679', '#31a354', '#006837'];
+            if (value < 1982) {
+                return colorlist[0];
+            }
+            else if (value < 6827) {
+                return colorlist[1];
+            }
+            else if (value < 19279) {
+                return colorlist[2];
+            }
+            else if (value < 57891) {
+                return colorlist[3];
+            }
+            else if (value < 1041839) {
+                return colorlist[4];
+            }
+        };
+
+        var style = function( feature ) {
+            return {
+                fillColor: getColor( feature.properties.tot_p_p ),
+                weight: 2,
+                opacity: 1,
+                color: 'white',
+                dashArray: '3',
+                fillOpacity: 0.7
+            };
+        };
+
+        var createLegend = function() {
+
+            //Code for the legend in the bottom right of the corner
+            var legend = L.control({position: 'bottomright'});
+
+            legend.onAdd = function (map) {
+
+                var div = L.DomUtil.create('div', 'info legend'),
+                        grades = ['Lowest', 'Low', 'Medium', 'High', 'Highest'],
+                        color = ['#ffffcc', '#c2e699', '#78c679', '#31a354', '#006837'];
+
+                // loop through our density intervals and generate a label with a colored square for each interval
+                div.innerHTML += '<ul>';
+                for (var i = 0; i < grades.length; i++) {
+                    div.innerHTML +=
+                            '<li><div class="legendBox" style="background:' + color[i] + '"></div> ' + '<div class="legendText">' + grades[i] + '</div></li>';
+                }
+                div.innerHTML += '</ul>';
+
+                return div;
+            };
+
+            return legend;
+        };
+
+		var loadDataQuery = function() {
+            var host = 'overpass-api.de';
+            var port = 80;
+            var path = '/api/interpreter';
+			var query = '?data=node[name=\"Gielgen\"];out;';
+            var dataUrl = "http://" + host + ":" + port + path + query;
+
+            $.ajax({
+                type: "GET",
+                url: dataUrl,
+                dataType: 'xml',
+                success: function(data){console.log('data')}
+            });
+        };
+		
+        var loadDataLayer = function( map, type, callback, additionalParams ) {
+            var host = 'ec2-54-79-46-214.ap-southeast-2.compute.amazonaws.com';
+            var port = 8080;
+            var path = "/geoserver/cite/ows";
+            var dataUrl = "http://" + host + ":" + port + path;
+
+            var data = {
+                service: 'WFS',
+                version: '1.0.0',
+                request: 'GetFeature',
+                typeName: type,
+                maxFeatures: 1000,
+                outputFormat: 'application/json'
+            };
+
+            for ( var key in additionalParams ) {
+                if ( !data.hasOwnProperty( key ) ) {
+                    data[ key ] = additionalParams[ key ];
+                }
+            }
+
+            $.ajax({
+                type: "GET",
+                url: dataUrl,
+                dataType: 'json',
+                data: data,
+                success: callback
+            });
+        };
+
+        var loadIndexLayer = function( map ) {
+
+            var models = {
+                population: "cite:lga_population",
+                populationSimple: "cite:lga_population_simple",
+                populationDynamic: "cite:lga_population_dynamic"
+            };
+
+            var additionalParams = {
+                viewparams: "simplify_tolerance:0.01"
+            };
+
+            var callback = function (response) {
+
+                L.geoJson(response, {
+                    style: style
+                }).addTo(map);
+
+            };
+
+            loadDataLayer( map, models.populationDynamic, callback, additionalParams )
+        };
+
+        var loadServiceLayer = function( map ) {
+
+            var callback = function (response) {
+
+                L.geoJson(response, {
+                    style: style
+                }).addTo(map);
+
+            };
+
+            loadDataLayer( map, 'cite:autism_support_groups', callback, {} );
+        };
+
+        var createOsmLayer = function() {
+
+            var baseMapUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+            var baseMapAttrib = 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
+            return L.tileLayer(
+                baseMapUrl,
+                {
+                    minZoom: 3,
+                    maxZoom: 14,
+                    attribution: baseMapAttrib
+                }
+            );
+
+        };
+
+        var setupSearch = function( map ) {
+            $( '#searchAndAddLayer' ).change( function() {
+
+                var searchTerm = this.value;
+                var osmLink = "http://nominatim.openstreetmap.org/search";
+                var mapQuestLink = "http://open.mapquestapi.com/nominatim/v1/search";
+
+                var mapBoundsString =
+                    /* left */   mapBounds[ 0 ][ 1 ] + "," +
+                    /* top  */   mapBounds[ 0 ][ 0 ] + "," +
+                    /* right  */ mapBounds[ 1 ][ 1 ] + "," +
+                    /* bottom */ mapBounds[ 1 ][ 0 ];
+
+                $.getJSON(
+                    mapQuestLink,
+                    {
+                        format : "json",
+                        q : searchTerm,
+                        viewbox : mapBoundsString,
+                        bounded : 1,
+                        limit : 10
+                    },
+                    function( response ) {
+
+                        var geoJsonPoints = [];
+                        for ( var i = 0; i < response.length; i ++ ) {
+                            geoJsonPoints.push( response[ i ].geojson );
+                        }
+
+                        console.log( "Num results: " + response.length );
+                        console.log( response );
+
+                        L.geoJson( geoJsonPoints, {
+                            style: style
+                        }).addTo( map );
+
+                    }
+                )
+            });
+        };
+
+        var map = initMap();
+        map.on( 'zoomend', showZoomLevel );
+        showZoomLevel();
+        createOsmLayer().addTo( map );
+        createLegend().addTo( map );
+        loadIndexLayer( map );
+        loadServiceLayer( map );
+        // setupSearch( map );
+
+    </script>
+
+
+{% endblock %}
