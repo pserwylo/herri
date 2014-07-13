@@ -169,7 +169,7 @@
                 $( select ).change( function() {
                     var card = $( this ).closest( '.panel' );
                     var value = attributes[ $( this).val() ];
-                    changePanelTitle( card, value.name );
+                    changePanelTitle( card, value.fields.name );
                     if ( isAlreadyIncluded( value.attribute ) ) {
                         showAlreadyUsedWarning( card );
                     } else {
