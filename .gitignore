@@ -1,3 +1,5 @@
 *.iml
 .idea
+*.pyc
+settings.py
 server/db_population/census2011
