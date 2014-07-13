@@ -8,8 +8,12 @@
     <div class="row">
         <div class="col-md-4">
             <h3>How to design a model</h3>
-            <p>Some text explaining why this is awesome.</p>
-            <p>Some text educating as to the "proper" way to do this.</p>
+            <p>
+                You may want to create a new business or community service in order to serve your community. The "herri" model builder allows you to arrange separate populations measured by the census into a model and give them your desired weighting out of 10. This allows you to see where your community is.
+            </p>
+            <p>
+                You should be aware of the <a href="https://en.wikipedia.org/wiki/Ecological_fallacy">ecological fallacy</a> and the <a href="https://en.wikipedia.org/wiki/Modifiable_Areal_Unit_Problem">modifiable areal unit problem</a>.
+            </p>
         </div>
         <div class="col-md-4">
             <div class="form-group">
@@ -45,9 +49,9 @@
         var getWeights = function() {
 
             var data = {
-                name: $('inputModelName').val(),
-                description: $('inputModelDescription').val(),
-                weightings: []
+                name        : $('#inputModelName').val(),
+                description : $('#inputModelDescription').val(),
+                weightings  : []
             };
 
             $( '#cards' ).find( '.card' ).each( function( i, item ) {
@@ -214,10 +218,10 @@
                 slider.className = "attribute";
                 slider.name      = "weight";
 
-                for ( var i = 10; i <= 90; i += 10 ) {
+                for ( var i = 1; i <= 10; i ++ ) {
                     var option       = document.createElement( "option" );
                     option.value     = i;
-                    option.innerHTML = i + "%";
+                    option.innerHTML = i + " / 10";
                     slider.appendChild( option );
                 }
 
