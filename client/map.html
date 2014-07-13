@@ -18,14 +18,23 @@
             <h1>Herri - Find <em>your</em> place in <em>your</em> community</h1>
         </div>
 
-        <div id="zoom-level"></div>
+        <div id="search-container" class="input-group">
+            <span class="input-group-addon">Search:</span>
+            <input id="searchAndAddLayer" class="form-control" placeholder="Search to add new services to the map" />
+        </div>
 
         <div id="map" class="img-thumbnail"></div>
 
+        <div id="zoom-level"></div>
 
     </div>
 
     <script type="text/javascript">
+
+            var mapBounds = [
+                [ -9.0, 111.3 ],
+                [ -46.0, 159.2 ]
+            ];
 
             /**
              * Create map, setup basemap layer, and return it.
@@ -33,13 +42,8 @@
              */
             var initMap = function() {
 
-                var bounds = [
-                    [ -9.0, 111.3 ],
-                    [ -46.0, 159.2 ]
-                ];
-
                 var map = L.map('map', {
-                    maxBounds : bounds
+                    maxBounds : mapBounds
                 }).setView([ -42.742572964499999, 147.258816064 ], 4);
 
                 return map;
@@ -149,13 +153,8 @@
 
                 var callback = function (response) {
 
-                    var dataStyle = {
-                        weight: 1,
-                        color: "#b30000"
-                    };
-
                     L.geoJson(response, {
-                        style: dataStyle
+                        style: style
                     }).addTo(map);
 
                 };
@@ -167,13 +166,8 @@
 
                 var callback = function (response) {
 
-                    var dataStyle = {
-                        weight: 1,
-                        color: "#b30000"
-                    };
-
                     L.geoJson(response, {
-                        style: dataStyle
+                        style: style
                     }).addTo(map);
 
                 };
@@ -196,12 +190,49 @@
 
             };
 
+            var setupSearch = function( map ) {
+                $( '#searchAndAddLayer' ).change( function() {
+
+                    var searchTerm = this.value;
+                    var link = "http://nominatim.openstreetmap.org/search";
+
+                    var mapBoundsString =
+                        /* left */   mapBounds[ 0 ][ 1 ] + "," +
+                        /* top  */   mapBounds[ 0 ][ 0 ] + "," +
+                        /* right  */ mapBounds[ 1 ][ 1 ] + "," +
+                        /* bottom */ mapBounds[ 1 ][ 0 ];
+
+                    console.log( mapBounds );
+                    console.log( mapBoundsString );
+
+                    $.getJSON(
+                        link,
+                        {
+                            format : "json",
+                            q : searchTerm,
+                            viewbox : mapBoundsString,
+                            bounded : 1,
+                            limit : 100,
+                            polygon_geojson : 1
+                        },
+                        function( response ) {
+
+                            L.geoJson(response, {
+                                style: style
+                            }).addTo( map );
+
+                        }
+                    )
+                });
+            };
+
             var map = initMap();
             map.on( 'zoomend', showZoomLevel );
             showZoomLevel();
             createOsmLayer().addTo( map );
             createLegend().addTo( map );
             loadIndexLayer( map );
+            setupSearch( map );
 
             // loadDataLayer( map );
 
