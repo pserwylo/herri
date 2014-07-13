@@ -1,0 +1,78 @@
+<html>
+    <head>
+        <!--Meta Data-->
+	<meta charset="utf-8">
+	<meta name="author" content="Ben Specht">
+	<meta name="copyright" content="2014 Ben Specht">
+	<link rel="stylesheet" href="bootstrap/css/bootstrap.css" />
+	<link rel="stylesheet" href="models.css" />
+	<title>
+		Leaflet Testing
+	</title>
+    </head>
+    
+    <body>
+		<script>
+			var maps = [
+				{
+					"Name": "TestName1",
+					"Description": "TestDescription1"
+				},
+				{
+					"Name": "TestName2",
+					"Description": "TestDescription2"
+				},
+				{
+					"Name": "TestName3",
+					"Description": "TestDescription3"
+				},
+				{
+					"Name": "TestName4",
+					"Description": "TestDescritption4"
+				},
+				{
+					"Name": "TestName5",
+					"Description": "TestDescription5"
+				},
+				{
+					"Name": "TestName6",
+					"Description": "TestDescription6"
+				},
+				{
+					"Name": "TestName7",
+					"Description": "TestDescription7"
+				},
+				{
+					"Name": "TestName8",
+					"Description": "TestDescription8"
+				},
+				{
+					"Name": "TestName9",
+					"Description": "TestDescription9"
+				},
+				{
+					"Name": "TestName10",
+					"Description": "TestDescription10"
+				},
+				{
+					"Name": "TestName11",
+					"Description": "TestDescription11"
+				},
+				{
+					"Name": "TestName12",
+					"Description": "TestDescription12"
+				}
+			];
+			
+			var rowStart = "<div class='row'>";
+			var rowEnd   = "</div>";
+			document.write( rowStart );
+			for (i = 0; i < maps.length; i++) {
+				if ( i > 0 && i % 3 == 0 ) document.write( rowEnd + rowStart );
+				document.write('<a><div class="panel panel-default col-md-3 panelList"><div class="panel-body">' + maps[i].Name + '</br>' + maps[i].Description + '</div></div></a>');
+			}
+			document.write( rowEnd );
+		</script>
+    </body>    
+
+</html>

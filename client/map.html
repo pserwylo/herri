@@ -172,7 +172,7 @@
 
                 };
 
-                loadDataLayer( map, 'cite:autism_service', callback, {} );
+                loadDataLayer( map, 'cite:autism_support_groups', callback, {} );
             };
 
             var createOsmLayer = function() {
@@ -194,7 +194,8 @@
                 $( '#searchAndAddLayer' ).change( function() {
 
                     var searchTerm = this.value;
-                    var link = "http://nominatim.openstreetmap.org/search";
+                    var osmLink = "http://nominatim.openstreetmap.org/search";
+                    var mapQuestLink = "http://open.mapquestapi.com/nominatim/v1/search";
 
                     var mapBoundsString =
                         /* left */   mapBounds[ 0 ][ 1 ] + "," +
@@ -202,22 +203,26 @@
                         /* right  */ mapBounds[ 1 ][ 1 ] + "," +
                         /* bottom */ mapBounds[ 1 ][ 0 ];
 
-                    console.log( mapBounds );
-                    console.log( mapBoundsString );
-
                     $.getJSON(
-                        link,
+                        mapQuestLink,
                         {
                             format : "json",
                             q : searchTerm,
                             viewbox : mapBoundsString,
                             bounded : 1,
-                            limit : 100,
-                            polygon_geojson : 1
+                            limit : 10
                         },
                         function( response ) {
 
-                            L.geoJson(response, {
+                            var geoJsonPoints = [];
+                            for ( var i = 0; i < response.length; i ++ ) {
+                                geoJsonPoints.push( response[ i ].geojson );
+                            }
+
+                            console.log( "Num results: " + response.length );
+                            console.log( response );
+
+                            L.geoJson( geoJsonPoints, {
                                 style: style
                             }).addTo( map );
 
@@ -232,9 +237,8 @@
             createOsmLayer().addTo( map );
             createLegend().addTo( map );
             loadIndexLayer( map );
+            // loadServiceLayer( map );
             setupSearch( map );
-
-            // loadDataLayer( map );
 
     </script>
 
