@@ -41,3 +41,7 @@ select.weight {
     width: 25%;
     padding: 0.5em;
 }
+
+ul.services li a.cafe {
+    background: url('/static/web/images/service-icons/cafe.png');
+}

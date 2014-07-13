@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-SQL_TEMPLATE = 'insert into model_run (%s);'
+SQL_TEMPLATE = 'insert into model_results (%s);'
 SQL_TABLE = 'lga_attributes_all'
 
 # Create your models here.
@@ -40,8 +40,8 @@ class AttributeModel(models.Model):
             weight = weighting.weight
             sql_strings.append('%s * %f' % (column_name, weight))
         
-        sql_result = 'select lga_id, %d as model_id, %s as value from %s' % (
-            model_id, '+'.join(sql_strings), SQL_TABLE
+        sql_result = 'select %d as model_id, region_id, %s as value from %s' % (
+            self.id, '+'.join(sql_strings), SQL_TABLE
         )
 
         return SQL_TEMPLATE % (sql_result)

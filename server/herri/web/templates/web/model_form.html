@@ -24,6 +24,27 @@
                 </div>
 
                 <textarea id="inputModelDescription" class="form-control" placeholder="What is the model about?"></textarea>
+
+                <div class="btn-group">
+                    <button class="btn btn-default btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
+                        Services <span class="caret"></span>
+                    </button>
+                    <ul class="services dropdown-menu" role="menu">
+                        <li><a href="#" class=""></a></li>
+                        <li><a href="#" class="church">Church</a></li>
+                        <li><a href="#" class="school ">School </a></li>
+                        <li><a href="#" class="skyscraper">Skyscraper</a></li>
+                        <li><a href="#" class="hospital ">Hospital </a></li>
+                        <li><a href="#" class="cafe">Cafe</a></li>
+                        <li><a href="#" class="pool">Pool</a></li>
+                        <li><a href="#" class="police">Police</a></li>
+                        <li><a href="#" class="taxi">Taxi</a></li>
+                        <li><a href="#" class="fire">Fire</a></li>
+                        <li><a href="#" class="post-office">Post office</a></li>
+                        <li><a href="#" class="parks">Parks</a></li>
+                        <li><a href="#" class="house">House</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
         <div class="col-md-4">
@@ -120,42 +141,7 @@
         // after adding them to the dom.
         var createCard = function() {
 
-            // "Religion", "Language", "Ancestry"
-
-            console.log( attributes );
-
             var createDropdown = function() {
-
-                var attributes_old = {
-                    "T_P_10" : {
-                        name : "People under 10yo",
-                        attribute : "T_P_10",
-                        description : "Total people below the age of <em>10</em>"
-                    },
-                    "T_P_20" : {
-                        name : "People under 20yo",
-                        attribute : "T_P_20",
-                        description : "Total people below the age of <em>20</em>"
-                    },
-                    "T_M" : {
-                        name : "Males",
-                        attribute : "T_M",
-                        description : "Total people identifying as males. " +
-                                "Note that it is important to also include the <em>Females</em> attribute " +
-                                "if you are using this attribute. You should then weight <em>Females</em> " +
-                                "and <em>Males</em> differently, depending on which is of more interest " +
-                                "for your index."
-                    },
-                    "T_F" : {
-                        name : "Females",
-                        attribute : "T_F",
-                        description : "Total people identifying as females. " +
-                                "Note that it is important to also include the <em>Males</em> attribute " +
-                                "if you are using this attribute. You should then weight <em>Males</em> " +
-                                "and <em>Females</em> differently, depending on which is of more interest " +
-                                "for your index."
-                    }
-                };
 
                 var select       = document.createElement( "select" );
                 select.className = "attribute";
