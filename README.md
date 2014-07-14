@@ -1,6 +1,8 @@
 Herri
 =====
 
+[![Herri logo](https://raw.github.com/pserwylo/herri/master/docs/images/herri-logo-400px.png)](https://github.com/pserwylo/herri)
+
 [Vote for us on GovHack!](http://hackerspace.govhack.org/content/herri-find-your-place-your-community)
 
 What is Herri?
