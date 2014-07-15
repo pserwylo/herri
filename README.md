@@ -75,8 +75,3 @@ Whether it is improving accessibility for people without computers, people with 
 Perhaps you have an interesting dataset that would be useful to integrate and allow others to make awesome models.
 
 Feel free to contribute by visiting the GitHub issue tracker and seeing what is required, or adding your own issues.
-
-License
--------
-
-Herri is open source software, distributed under the terms of the GNU AGPLv3+. See LICENSE for more details.
