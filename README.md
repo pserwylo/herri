@@ -5,6 +5,13 @@ Herri
 
 [Vote for us on GovHack!](http://hackerspace.govhack.org/content/herri-find-your-place-your-community)
 
+A message for people from GovHack
+---------------------------------
+
+To enable continued development of herri, without inteferring with the voting period of govhack, we've [tagged the version of herri which was completed at 5:30pm at the end of GovHack](https://github.com/pserwylo/herri/releases/tag/govhack-2014-submission).
+The [demo website](http://herri.serwylo.com) will _not_ be updated until _after_ the voting period is complete. 
+Until then, the old, crufty, hacky version of the code will be kept running.
+
 What is Herri?
 --------------
 
@@ -42,10 +49,10 @@ The Herri team consisted of the following people:
  * Ben
  * Kim
  * Brad
+ * Kane 
  * Lyndon
  * Daniel
  * Pete
- * 
 
 Installing herri
 ----------------
