@@ -33,3 +33,9 @@ DATABASES = {
     		'PORT': '5432'
 	}
 }
+
+# Including port number (if not port 80) and path.
+# In the future, vagrant should set this up so that it is on the same host,
+# and using port 80. In that case, you could just specify a relative path
+# for this value. But for now, it's a little bit funky.
+GEOSERVER_URL = 'http://localhost:18080/geoserver'

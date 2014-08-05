@@ -5,6 +5,7 @@ from api.models import AttributeModel, Attribute, Weighting
 from django.core import serializers
 from django.http import HttpResponse
 
+
 # Create your views here.
 def get_attribute_model(request, model_id):
     json_data = serializers.serialize(

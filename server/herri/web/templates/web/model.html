@@ -118,10 +118,7 @@
         };
 		
         var loadDataLayer = function( map, type, callback, additionalParams ) {
-            var host = 'herri.serwylo.com';
-            var port = 8080;
-            var path = "/geoserver/cite/ows";
-            var dataUrl = "http://" + host + ":" + port + path;
+            var dataUrl = '{{ GEOSERVER_URL }}/cite/ows';
 
             var data = {
                 service: 'WFS',
