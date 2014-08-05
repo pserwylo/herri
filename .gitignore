@@ -1,6 +1,7 @@
 *.iml
 .idea
 *.pyc
-settings.py
+local_settings.py
 wsgi.py
 server/db_population/census2011
+.vagrant
