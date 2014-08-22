@@ -1,11 +1,23 @@
 import json
 from django.contrib.auth.models import User
 from django.db import connections
-from api.models import AttributeModel, Attribute, Weighting
+from api.models import AttributeModel, Attribute, Weighting, POI
 from django.core import serializers
 from django.http import HttpResponse
 
-# Create your views here.
+# http://stackoverflow.com/questions/3034482/rendering-spatial-data-of-geoqueryset-in-a-custom-view-on-geodjango
+from vectorformats.Formats import Django, GeoJSON
+
+
+def data_gis_poi(request):
+
+    query_set = POI.objects.all()
+    django_format = Django.Django(geodjango="point", properties=['name', 'description'])
+    json_data = GeoJSON.GeoJSON().encode(django_format.decode(query_set))
+
+    return HttpResponse(json_data, content_type='application/json')
+
+
 def get_attribute_model(request, model_id):
     json_data = serializers.serialize(
         'json'

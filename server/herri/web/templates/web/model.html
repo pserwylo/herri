@@ -116,7 +116,21 @@
                 success: function(data){console.log('data')}
             });
         };
-		
+
+        var loadDjangoDataLayer = function( type, callback  ) {
+
+            var path = "/api/geo/" + type;
+
+            $.ajax({
+                type: "GET",
+                url: path,
+                dataType: 'json',
+                data: {},
+                success: callback
+            });
+
+        };
+
         var loadDataLayer = function( map, type, callback, additionalParams ) {
             var host = 'herri.serwylo.com';
             var port = 8080;
@@ -181,7 +195,7 @@
 
             };
 
-            loadDataLayer( map, 'cite:autism_support_groups', callback, {} );
+            loadDjangoDataLayer( 'poi', callback, {} );
         };
 
         var createOsmLayer = function() {

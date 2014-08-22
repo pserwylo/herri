@@ -1,0 +1,22 @@
+Where is this data imported into the database?
+---------
+
+Have a look in the api/load.py method. It follows the tutorial from
+https://docs.djangoproject.com/en/1.6/ref/contrib/gis/tutorial/ in 
+order to get the data fromt he shape file into the PostGIS database
+(using the same data format as the GeoDjango model).
+
+What is in the "filtered" subdirectory?
+---------
+
+There are some points which don't have valid WKT points in them. If 
+you were to inspect the items using:
+
+	ogrinfo -al Aut_support.shp
+
+you'd see some points with the value "POINT( too_big, too_big )". In
+order to ensure that the only points in the shape file are those with 
+reasonable points, the following command will copy the shapefile, 
+excluding all points which don't have a lat/long between -360 and 360.
+
+	ogr2ogr -spat -360 -360 360 360 ./filtered/Aut_support.shp Aut_support.shp
