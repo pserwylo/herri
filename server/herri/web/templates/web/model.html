@@ -40,6 +40,17 @@
 
         };
 
+
+        var getColourScale = function() {
+            var colours = {
+                green: ['#ffffcc', '#c2e699', '#78c679', '#31a354', '#006837'],
+                red: ['#ffeeee', '#ffeeee', '#fee0d2', '#fc9272', '#de2d26']
+            };
+
+            return colours.red;
+        };
+
+
         var style = function( feature ) {
 
             var getColor = function(properties) {
@@ -58,22 +69,21 @@
                 }
 
                 var value = indexModelValues[ lgaCode ];
-
-                var colorlist = ['#ffffcc', '#c2e699', '#78c679', '#31a354', '#006837'];
+                var colourList = getColourScale();
                 if (value < indexModel.quantile_1) {
-                    return colorlist[0];
+                    return colourList[0];
                 }
                 else if (value < indexModel.quantile_2) {
-                    return colorlist[1];
+                    return colourList[1];
                 }
                 else if (value < indexModel.quantile_3) {
-                    return colorlist[2];
+                    return colourList[2];
                 }
                 else if (value < indexModel.quantile_4) {
-                    return colorlist[3];
+                    return colourList[3];
                 }
                 else {
-                    return colorlist[4];
+                    return colourList[4];
                 }
             };
 
@@ -96,13 +106,13 @@
 
                 var div = L.DomUtil.create('div', 'info legend'),
                         grades = ['Lowest', 'Low', 'Medium', 'High', 'Highest'],
-                        color = ['#ffffcc', '#c2e699', '#78c679', '#31a354', '#006837'];
+                        colour = getColourScale();
 
                 // loop through our density intervals and generate a label with a colored square for each interval
                 div.innerHTML += '<ul>';
                 for (var i = 0; i < grades.length; i++) {
                     div.innerHTML +=
-                            '<li><div class="legendBox" style="background:' + color[i] + '"></div> ' + '<div class="legendText">' + grades[i] + '</div></li>';
+                            '<li><div class="legendBox" style="background:' + colour[i] + '"></div> ' + '<div class="legendText">' + grades[i] + '</div></li>';
                 }
                 div.innerHTML += '</ul>';
 
