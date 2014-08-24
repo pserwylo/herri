@@ -43,32 +43,45 @@
 
         };
 
-        var showZoomLevel = function() {
-            $( '#zoom-level' ).html( 'Zoom level: ' + map.getZoom() );
-        };
-
-        var getColor = function(value) {
-            var colorlist = ['#ffffcc', '#c2e699', '#78c679', '#31a354', '#006837'];
-            if (value < 1982) {
-                return colorlist[0];
-            }
-            else if (value < 6827) {
-                return colorlist[1];
-            }
-            else if (value < 19279) {
-                return colorlist[2];
-            }
-            else if (value < 57891) {
-                return colorlist[3];
-            }
-            else if (value < 1041839) {
-                return colorlist[4];
-            }
-        };
-
         var style = function( feature ) {
+
+            var getColor = function(properties) {
+
+                var lgaCode = properties.lga_code;
+
+                if ( indexModelValues == null ) {
+                    // Haven't loaded the values for colourising yet. Set to white, and wait until
+                    // we get back here after loading the model results (at which point we will be
+                    // able to actually colourise the values).
+                    return '#ffffff';
+                } else if ( !indexModelValues.hasOwnProperty( lgaCode ) ) {
+                    // Hrmm, that is odd. Why do we have an LGA on the map, without a corresponding
+                    // value in the index model?
+                    return '#ff0000';
+                }
+
+                var value = indexModelValues[ lgaCode ];
+
+                var colorlist = ['#ffffcc', '#c2e699', '#78c679', '#31a354', '#006837'];
+                if (value < 1982) {
+                    return colorlist[0];
+                }
+                else if (value < 6827) {
+                    return colorlist[1];
+                }
+                else if (value < 19279) {
+                    return colorlist[2];
+                }
+                else if (value < 57891) {
+                    return colorlist[3];
+                }
+                else if (value < 1041839) {
+                    return colorlist[4];
+                }
+            };
+
             return {
-                fillColor: getColor( feature.properties.value ),
+                fillColor: getColor( feature.properties ),
                 weight: 2,
                 opacity: 1,
                 color: 'white',
@@ -117,72 +130,151 @@
             });
         };
 
-        var loadDjangoDataLayer = function( type, callback  ) {
-
+        var loadDjangoDataLayer = function( map, type, params, callback ) {
             var path = "/api/geo/" + type;
-
             $.ajax({
                 type: "GET",
                 url: path,
                 dataType: 'json',
-                data: {},
-                success: callback
-            });
-
-        };
-
-        var loadDataLayer = function( map, type, callback, additionalParams ) {
-            var host = 'herri.serwylo.com';
-            var port = 8080;
-            var path = "/geoserver/cite/ows";
-            var dataUrl = "http://" + host + ":" + port + path;
-
-            var data = {
-                service: 'WFS',
-                version: '1.0.0',
-                request: 'GetFeature',
-                typeName: type,
-                maxFeatures: 1000,
-                outputFormat: 'application/json'
-            };
-
-            for ( var key in additionalParams ) {
-                if ( !data.hasOwnProperty( key ) ) {
-                    data[ key ] = additionalParams[ key ];
-                }
-            }
-
-            $.ajax({
-                type: "GET",
-                url: dataUrl,
-                dataType: 'json',
-                data: data,
+                data: params,
                 success: callback
             });
         };
+
+        // Keep track of the requests which are made. That way, if we are zooming in, and requesting
+        // progressively more detailed geometry, we don't want to accidentally replace our nice fine
+        // geometry with cruddy stuff from a previous (out of order) request.
+        var indexLayerRequest = 0;
+        var indexLayerResponse = 0;
+        var indexLayerPreviousZoom = null;
+        var indexLayerPreviousBounds = null;
+
 
         var loadIndexLayer = function( map, modelId ) {
 
-            var models = {
-                population: "cite:lga_population",
-                populationSimple: "cite:lga_population_simple",
-                populationDynamic: "cite:lga_population_dynamic",
-                modelIndex: "cite:model_results_geoserved"
+            /**
+             * When we send a request, we want to do two things:
+             *  - Request a little extra space (so that when we pan, we don't immediately need
+             *    to hit the server for more data
+             *  - Round the numbers to something more whole, so that we have opportunities to
+             *    cache responses and reuse in the future. For example, if you request bounds with
+             *    a west value of 5.531 or 5.582, clamping both to the value of 5.5 means that
+             *    they'd both require the same response, which is hopefully cached.
+             */
+            var boundsToRequest = function() {
+
+                var padBounds = function(xpad, ypad, xround, yround) {
+
+                    var bounds = map.getBounds();
+
+                    var west = bounds.getWest() - xpad;
+                    var east = bounds.getEast() + xpad;
+                    var north = bounds.getNorth() + ypad;
+                    var south = bounds.getSouth() - ypad;
+
+                    west -= west % xround;
+                    east -= east % xround + xround;
+                    north -= north % yround + yround;
+                    south -= south % yround;
+
+                    return L.latLngBounds( [ south, west ], [ north, east ] )
+                };
+
+                var zoomLevel = map.getZoom();
+
+                /*
+                 * TODO: Could probably do with some tuning here.
+                 * Specifically, the rounding should be increased, to make it more
+                 * likely that two requests want the same geometry. Right now, panning
+                 * around still results in quite a few uncached requests to the server
+                 * which is fairly slow.
+                 */
+                if ( zoomLevel <= 4 ) {
+                    return map.getBounds();
+                } else if ( zoomLevel == 5 ) {
+                    return padBounds( 10, 8, 5, 4 );
+                } else if ( zoomLevel == 6 ) {
+                    return padBounds( 3, 3, 1.5, 1.5 );
+                } else if ( zoomLevel == 7 ) {
+                    return padBounds( 3, 2, 1, 1 );
+                } else if ( zoomLevel == 8 ) {
+                    return padBounds( 2.5, 1.5, 1, 1 );
+                } else {
+                    return padBounds( 2.2, 1.2, 1, 1 );
+                }
             };
 
-            var additionalParams = {
-                viewparams: "simplify_tolerance:0.01;model_run_id:" + modelId
+            var calcSimplificationThreshold = function(zoomLevel) {
+                if ( zoomLevel <= 4 ) {
+                    return 0.22;
+                } else if ( zoomLevel <= 5 ) {
+                    return 0.08;
+                } else if ( zoomLevel <= 6 ) {
+                    return 0.06;
+                } else if ( zoomLevel <= 8 ) {
+                    return 0.025;
+                } else if ( zoomLevel <= 9 ) {
+                    return 0.01;
+                } else if ( zoomLevel <= 10 ) {
+                    return 0.007;
+                } else if ( zoomLevel <= 11 ) {
+                    return 0.005;
+                } else {
+                    return 0.001;
+                }
             };
 
-            var callback = function (response) {
-
-                L.geoJson(response, {
-                    style: style
-                }).addTo(map);
-
+            var data = {
+                simplification_threshold : calcSimplificationThreshold( map.getZoom() )
             };
 
-            loadDataLayer( map, models.modelIndex, callback, additionalParams )
+            var requestedBounds = boundsToRequest();
+
+            // Zoom level 4 includes the whole country, so don't bother restricting.
+            if ( map.getZoom() > 4 ) {
+                data.xmin  = requestedBounds.getWest();
+                data.ymin  = requestedBounds.getSouth();
+                data.xmax  = requestedBounds.getEast();
+                data.ymax  = requestedBounds.getNorth();
+            }
+
+            if ( indexLayerPreviousZoom != null ) {
+                if ( indexLayerPreviousZoom == map.getZoom() &&
+                        indexLayerPreviousBounds.contains( map.getBounds() ) ) {
+                    console.log( "Not requesting data, because we are within the previous request" );
+                    return;
+                }
+            }
+
+            var layerRequest = indexLayerRequest;
+            indexLayerRequest ++;
+
+            var oldZoom = map.getZoom();
+            var oldBounds = requestedBounds;
+
+            loadDjangoDataLayer( map, 'region', data, function (response) {
+
+                // Discard incoming layers that are superseded by a newer request
+                if ( layerRequest == indexLayerResponse ) {
+                    if (indexLayer != null) {
+                        console.log("Removing previous index layer from map.");
+                        map.removeLayer(indexLayer);
+                    }
+
+                    console.log("Adding index layer to map.");
+                    indexLayer = L.geoJson(response, {
+                        style: style
+                    }).addTo(map);
+
+                    // Store the cached versions from before the response was sent, because the user may
+                    // have interacted with the map since then.
+                    indexLayerPreviousZoom = oldZoom;
+                    indexLayerPreviousBounds = oldBounds;
+
+                }
+                indexLayerResponse ++;
+
+            });
         };
 
         var loadServiceLayer = function( map, modelId ) {
@@ -195,7 +287,7 @@
 
             };
 
-            loadDjangoDataLayer( 'poi', callback, {} );
+            loadDjangoDataLayer( map, 'poi', {}, callback );
         };
 
         var createOsmLayer = function() {
@@ -254,14 +346,37 @@
             });
         };
 
+        /*
+         * Rather than passing the model values through with the geometry from the server,
+         * we instead fetch them separately. This allows us to send through geometry
+         * without anything that is specific to the model we are viewing. This in turn allows
+         * heavy caching of the geometry, both server and client side.
+         * The catch is, we need to remember to restyle the geometry each time we receive
+         * some more from the server (by calling restyleIndexLayer()
+         */
+        var indexModelValues = null;
+
+        var restyleIndexLayer = function() {
+            if ( indexLayer != null ) {
+                indexLayer.setStyle( style );
+            }
+        };
 
         var loadModel = function( modelId ) {
+
             loadIndexLayer( map, modelId );
             if ( modelId == 1 ) { /* autism model... */
                 loadServiceLayer( map, modelId );
             }
+
+            $.getJSON( '/api/model/result/' + modelId + '/', function( data ) {
+                indexModelValues = data;
+                restyleIndexLayer();
+            });
+
             $( '#modelName' ).html( '' );
             $( '#modelDescription' ).html( '' );
+
             $.getJSON( '/api/attribute_model/' + modelId + '/', function( data ) {
                 var model = data.pop();
                 $( '#modelName' ).html( model.fields.name );
@@ -270,9 +385,23 @@
         };
 
 
+        var onZoomEnd = function() {
+            console.log( 'Zoom level: ' + map.getZoom() );
+            loadIndexLayer( map, 'region' );
+        };
+
+
+        var onPanEnd = function() {
+            console.log( 'Panned map' );
+            console.log( map.getBounds() );
+            loadIndexLayer( map, 'region' );
+        };
+
+
+        var indexLayer = null;
         var map = initMap();
-        map.on( 'zoomend', showZoomLevel );
-        showZoomLevel();
+        map.on( 'zoomend', onZoomEnd );
+        map.on( 'dragend',  onPanEnd  );
         createOsmLayer().addTo( map );
         createLegend().addTo( map );
 

@@ -1,7 +1,9 @@
+import hotshot
 import json
 from django.contrib.auth.models import User
 from django.db import connections
-from api.models import AttributeModel, Attribute, Weighting, POI
+from django.utils.cache import patch_cache_control
+from api.models import AttributeModel, Attribute, Weighting, POI, Region, ModelResult
 from django.core import serializers
 from django.http import HttpResponse
 
@@ -9,13 +11,48 @@ from django.http import HttpResponse
 from vectorformats.Formats import Django, GeoJSON
 
 
-def data_gis_poi(request):
+def data_model_result(request, run_id):
+    results = ModelResult.objects.filter(run_id=int(run_id))
+    get_key = lambda item: item.lga_code
+    data = dict((get_key(result), float(result.value)) for result in results)
+    return HttpResponse(json.dumps(data), content_type='application/json')
 
+
+def data_gis_poi(request):
     query_set = POI.objects.all()
     django_format = Django.Django(geodjango="point", properties=['name', 'description'])
     json_data = GeoJSON.GeoJSON().encode(django_format.decode(query_set))
 
-    return HttpResponse(json_data, content_type='application/json')
+    response = HttpResponse(json_data, content_type='application/json')
+    patch_cache_control(response, max_age=3600, public=True)
+    return response
+
+def data_gis_region(request):
+
+    def get_float(key, default, min_val, max_val):
+        val = float(request.GET.get(key, default))
+        if val > max_val:
+            val = max_val
+        elif val < min_val:
+            val = min_val
+        return val
+
+    simplification_threshold = get_float('simplification_threshold', '0.5', 0.001, 0.5)
+    xmin = get_float('xmin', '110', 110, 170)
+    xmax = get_float('xmax', '170', 110, 170)
+    ymin = get_float('ymin', '-45', -45, -20)
+    ymax = get_float('ymax', '-10', -45, -10)
+    sql = "SELECT id, name, lga_code, ST_Simplify(geometry, %f) AS geometry FROM api_region WHERE geometry && ST_MakeEnvelope( %f, %f, %f, %f )" % \
+          (simplification_threshold, xmin, ymin, xmax, ymax)
+    query_set = Region.objects.raw(sql)
+
+    django_format = Django.Django(geodjango="geometry", properties=['name', 'lga_code'])
+    django_data = django_format.decode(query_set)
+    json_data = GeoJSON.GeoJSON().encode(django_data)
+
+    response = HttpResponse(json_data, content_type='application/json')
+    patch_cache_control(response, max_age=3600, public=True)
+    return response
 
 
 def get_attribute_model(request, model_id):
@@ -76,7 +113,7 @@ def save_attribute_model(request):
             existing_attribute = Attribute.objects.filter(id=attribute_id)
             assert (existing_attribute.exists())
 
-            new_weighting.attribute = existing_attribute[ 0 ]
+            new_weighting.attribute = existing_attribute[0]
             new_weighting.weight = weight
 
             # this will set the id for new_weighting

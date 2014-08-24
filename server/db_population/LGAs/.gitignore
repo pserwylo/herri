@@ -1,0 +1,11 @@
+# Ignore shapefiles here, because we're not sure if we are allowed to
+# republish the data from the ABS website in our git repository.
+
+*.cpg
+*.dbf
+*.prj
+*.shp
+*.shx
+
+# This directory is created by the prepare.sh script when it is run
+filtered

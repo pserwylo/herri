@@ -58,9 +58,24 @@ Herri has a few moving parts that are involved, partly due to the fact that ther
 This section will document both herri itself, and each of its dependencies.
 
 The dependencies are:
- * PostgreSQL + PostGIS (used by geoserver and django - spatialite may work but it is untested)
- * GeoServer
- * Apache2 (or some other webserver which can get requests to both django and geoserver)
+ * PostgreSQL + PostGIS (used by geodjango - spatialite may work but it is untested)
+ * Apache2 (or some other webserver which works nicely with django)
+
+Python dependencies
+-------------------
+
+ * psycopg2
+ * vectorformats
+ * simplejson<=2.0.7 (see https://github.com/simplejson/simplejson/issues/37 for biff between simplejson and django devs as to why latest is not suitable)
+
+PostgreSQL setup
+----------------
+
+createuser -P <username>
+createdb <database_name>
+
+cp herri/local_settings.py.example herri/local_settings.py
+# Edit local_settings.py and specify relevant database settings (username, password, database name)
 
 TODO: Explain the config files for the relevant software.
 

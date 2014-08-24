@@ -5,10 +5,37 @@ SQL_TEMPLATE = 'insert into model_results (%s);'
 SQL_TABLE = 'lga_attributes_all'
 
 
+class ModelResult(models.Model):
+    run_id = models.IntegerField()
+    lga_code = models.CharField(max_length=8)
+    value = models.FloatField()
+
+    def __unicode__(self):
+        return "Model result for %d" % self.run_id
+
+
 class POI(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField()
     point = models.PointField()
+    objects = models.GeoManager()
+
+    def __unicode__(self):
+        return self.name
+
+
+class Region(models.Model):
+    """
+    Regions represent polygons on the map for which we will colour
+    according to the index model. Initially they are only LGA's
+    (Local Government Authorities). In the future, it could be more
+    detailed (e.g. suburbs) or less detailed (e.g. states).
+    """
+
+    lga_code = models.CharField(max_length=8)
+    state_code = models.IntegerField()
+    name = models.CharField(max_length=50)
+    geometry = models.MultiPolygonField()
     objects = models.GeoManager()
 
     def __unicode__(self):
