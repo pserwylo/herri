@@ -69,7 +69,7 @@
     <script type="text/javascript" src="/static/web/bootstrap/js/bootstrap.js"></script>
     <script type="text/javascript">
 
-        var attributes = null;
+        var attributes = {{ attributes_json|safe }}
 
         var getWeights = function() {
 
@@ -273,7 +273,7 @@
         var finish = function() {
             // TODO: Actually validate the data properly...
             $.post(
-                "http://localhost:8000/api/attribute_models/new/",
+                "/api/attribute_models/new/",
                 { model : JSON.stringify( getWeights() ) },
                 function( data ) {
                     console.log( data );
@@ -288,10 +288,7 @@
 
         };
 
-        $.get( '/api/attributes', function( data ) {
-            attributes = data;
-            addNewCard();
-        });
+        addNewCard();
 
         $( '#btnAdd'      ).click( function() { addNewCard(); } );
         $( '#btnFinished' ).click( function() { finish(); } );

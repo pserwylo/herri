@@ -1,0 +1,13 @@
+INSERT INTO public.api_attribute (id, name, column_name, description) VALUES (1, 'Total Population', 'tot_p_p', 'Total population of a Local Government Area (LGA)');
+INSERT INTO public.api_attribute (id, name, column_name, description) VALUES (4, 'People Aged 1', 'Age_yr_1_P', 'People aged 1 year old');
+INSERT INTO public.api_attribute (id, name, column_name, description) VALUES (5, 'Age 0-4', 'Age_yr_0_4_P', 'People aged 0-4 years');
+INSERT INTO public.api_attribute (id, name, column_name, description) VALUES (6, 'Age 5-9', 'Age_yr_5_9_P', 'People aged 5-9');
+INSERT INTO public.api_attribute (id, name, column_name, description) VALUES (13, 'Religion Buddhism', 'Buddhism_P', 'People who affiliate with Buddhism');
+INSERT INTO public.api_attribute (id, name, column_name, description) VALUES (14, 'No Religion', 'No_Religion_P', 'People who affiliate with no religion');
+INSERT INTO public.api_attribute (id, name, column_name, description) VALUES (15, 'Religion Christianity', 'Christianity_Tot_P', 'People who affiliate with Christianity');
+INSERT INTO public.api_attribute (id, name, column_name, description) VALUES (16, 'Religion Islam', 'Islam_P', 'People who Identify with Islam');
+INSERT INTO public.api_attribute (id, name, column_name, description) VALUES (17, 'Religion Christianity Catholic', 'Christianity_Catholic_P', 'People who affiliate with christian catholicism');
+INSERT INTO public.api_attribute (id, name, column_name, description) VALUES (18, 'Language Mandarin', 'SOL_Chin_lang_Mand_P', 'People who speak mandarin chinese');
+INSERT INTO public.api_attribute (id, name, column_name, description) VALUES (19, 'Language Khmer', 'SOL_Khmer_P', 'People who speak Khmer');
+INSERT INTO public.api_attribute (id, name, column_name, description) VALUES (20, 'Language French', 'SOL_French_P', 'People who speak french');
+INSERT INTO public.api_attribute (id, name, column_name, description) VALUES (3, 'Age 0', 'Age_yr_0_p', 'People of age 0');

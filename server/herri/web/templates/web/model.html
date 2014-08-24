@@ -46,7 +46,7 @@
 
                 var lgaCode = properties.lga_code;
 
-                if ( indexModelValues == null ) {
+                if ( indexModelValues == null || indexModel == null ) {
                     // Haven't loaded the values for colourising yet. Set to white, and wait until
                     // we get back here after loading the model results (at which point we will be
                     // able to actually colourise the values).
@@ -60,19 +60,19 @@
                 var value = indexModelValues[ lgaCode ];
 
                 var colorlist = ['#ffffcc', '#c2e699', '#78c679', '#31a354', '#006837'];
-                if (value < 1982) {
+                if (value < indexModel.quantile_1) {
                     return colorlist[0];
                 }
-                else if (value < 6827) {
+                else if (value < indexModel.quantile_2) {
                     return colorlist[1];
                 }
-                else if (value < 19279) {
+                else if (value < indexModel.quantile_3) {
                     return colorlist[2];
                 }
-                else if (value < 57891) {
+                else if (value < indexModel.quantile_4) {
                     return colorlist[3];
                 }
-                else if (value < 1041839) {
+                else {
                     return colorlist[4];
                 }
             };
@@ -359,26 +359,29 @@
             }
         };
 
-        var loadModel = function( modelId ) {
+        var initialiseModel = function() {
 
-            loadIndexLayer( map, modelId );
-            if ( modelId == 1 ) { /* autism model... */
-                loadServiceLayer( map, modelId );
+            loadIndexLayer( map, {{ index_model.id }} );
+
+            {% if index_model.id == 1 %}
+            loadServiceLayer( map, {{ index_model.id }} );
+            {% endif %}
+
+            indexModel = {{ index_model.to_json|safe }};
+            indexModelValues = {{ json_index_model_data|safe }};
+
+            showModelDetails();
+        };
+
+
+        var showModelDetails = function() {
+
+            if ( indexModel != null ) {
+                restyleIndexLayer();
+                $('#modelName').html( indexModel.name );
+                $('#modelDescription').html( indexModel.description );
             }
 
-            $.getJSON( '/api/model/result/' + modelId + '/', function( data ) {
-                indexModelValues = data;
-                restyleIndexLayer();
-            });
-
-            $( '#modelName' ).html( '' );
-            $( '#modelDescription' ).html( '' );
-
-            $.getJSON( '/api/attribute_model/' + modelId + '/', function( data ) {
-                var model = data.pop();
-                $( '#modelName' ).html( model.fields.name );
-                $( '#modelDescription' ).html( model.fields.description );
-            });
         };
 
 
@@ -402,8 +405,7 @@
         map.on( 'dragend',  onPanEnd  );
         createOsmLayer().addTo( map );
         createLegend().addTo( map );
-
-        loadModel( {{ model_id }} );
+        initialiseModel();
 
     </script>
 

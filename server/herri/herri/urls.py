@@ -10,8 +10,8 @@ from api.views import get_attribute_model, data_gis_region, data_gis_poi, data_m
 
 urlpatterns = patterns('',
 
-    url(r'^api/geo/poi$', cache_page(60 * 60 * 24 * 7)(data_gis_poi)),
-    url(r'^api/geo/region$',  cache_page(60 * 60 * 24 * 7)(data_gis_region)),
+    url(r'^api/geo/poi/$', cache_page(60 * 60 * 24 * 7)(data_gis_poi)),
+    url(r'^api/geo/region/$',  cache_page(60 * 60 * 24 * 7)(data_gis_region)),
 
     url(r'^api/model/result/(\d+)/$', data_model_result),
 

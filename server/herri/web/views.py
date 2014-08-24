@@ -1,8 +1,10 @@
 import json
 from django.conf import settings
+from django.core import serializers
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.template import loader
+from api.models import Attribute, AttributeModel, ModelResult
 
 
 def _render_model(request, model_id):
@@ -23,7 +25,13 @@ def _render_model(request, model_id):
             [-32.1, 153.7]
         ]
 
-    context = {'model_id': 1, 'min_zoom': min_zoom, 'default_zoom': default_zoom, 'map_bounds': json.dumps(map_bounds)}
+    index_model = AttributeModel.objects.get(id=model_id)
+
+    index_model_results = ModelResult.objects.filter(run_id=model_id)
+    get_key = lambda item: item.lga_code
+    index_model_data = dict((get_key(result), float(result.value)) for result in index_model_results)
+
+    context = {'json_index_model_data': json.dumps(index_model_data), 'index_model': index_model, 'min_zoom': min_zoom, 'default_zoom': default_zoom, 'map_bounds': json.dumps(map_bounds)}
     return render(request, "web/model.html", context)
 
 
@@ -36,4 +44,10 @@ def model(request, model_id):
 
 
 def model_new(request):
-    return render(request, "web/model_form.html")
+    attributes_json = serializers.serialize(
+        'json'
+        , Attribute.objects.all()
+        , indent=4
+    )
+    context = {'attributes_json': attributes_json}
+    return render(request, "web/model_form.html", context)
