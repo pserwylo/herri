@@ -12,6 +12,19 @@ DEBUG = True
 
 TEMPLATE_DEBUG = True
 
+# If you set this to a valid state code, then only geometry from that state will
+# be shown. Valid state codes are:
+#   1 (NSW)
+#   2 (VIC)
+#   3 (QLD)
+#   4 (SA)
+#   5 (WA)
+#   6 (TAS)
+#   7 (NT)
+#   8 (ACT) - though this is only 1 LGA, herri may support smaller regions in the future
+#   9 (Unincorporated other territories)
+RESTRICT_TO_STATE = None
+
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 

@@ -24,10 +24,7 @@
 
     <script type="text/javascript">
 
-        var mapBounds = [
-            [ -9.0, 111.3 ],
-            [ -46.0, 159.2 ]
-        ];
+        var mapBounds = {{ map_bounds|safe }};
 
         /**
          * Create map, setup basemap layer, and return it.
@@ -37,7 +34,7 @@
 
             var map = L.map('map', {
                 maxBounds : mapBounds
-            }).setView([ -42.742572964499999, 147.258816064 ], 4);
+            }).setView([ -42.742572964499999, 147.258816064 ], {{ default_zoom }});
 
             return map;
 
@@ -297,7 +294,7 @@
             return L.tileLayer(
                 baseMapUrl,
                 {
-                    minZoom: 3,
+                    minZoom: {{ min_zoom }},
                     maxZoom: 14,
                     attribution: baseMapAttrib
                 }
@@ -386,14 +383,15 @@
 
 
         var onZoomEnd = function() {
-            console.log( 'Zoom level: ' + map.getZoom() );
+            /*console.log( 'Zoom level: ' + map.getZoom() );*/
             loadIndexLayer( map, 'region' );
         };
 
 
         var onPanEnd = function() {
-            console.log( 'Panned map' );
-            console.log( map.getBounds() );
+            /*var bounds = map.getBounds();
+            console.log( 'Panned map: [ [' + bounds.getSouth() + ', ' + bounds.getWest() + ' ], [' + bounds.getNorth() + ', ' + bounds.getEast() + '] ]' );
+            console.log( map.getBounds() );*/
             loadIndexLayer( map, 'region' );
         };
 

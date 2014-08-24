@@ -1,5 +1,6 @@
 import hotshot
 import json
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import connections
 from django.utils.cache import patch_cache_control
@@ -42,8 +43,16 @@ def data_gis_region(request):
     xmax = get_float('xmax', '170', 110, 170)
     ymin = get_float('ymin', '-45', -45, -20)
     ymax = get_float('ymax', '-10', -45, -10)
-    sql = "SELECT id, name, lga_code, ST_Simplify(geometry, %f) AS geometry FROM api_region WHERE geometry && ST_MakeEnvelope( %f, %f, %f, %f )" % \
-          (simplification_threshold, xmin, ymin, xmax, ymax)
+
+    bounding_where = " AND geometry && ST_MakeEnvelope( %f, %f, %f, %f ) " % (xmin, ymin, xmax, ymax)
+
+    state_where = ""
+    if hasattr(settings, 'RESTRICT_TO_STATE') and settings.RESTRICT_TO_STATE is not None:
+        state_where = " AND state_code = %d " % settings.RESTRICT_TO_STATE
+
+    sql = "SELECT id, name, lga_code, ST_Simplify(geometry, %f) AS geometry FROM api_region WHERE TRUE %s %s" % \
+          (simplification_threshold, bounding_where, state_where)
+
     query_set = Region.objects.raw(sql)
 
     django_format = Django.Django(geodjango="geometry", properties=['name', 'lga_code'])
