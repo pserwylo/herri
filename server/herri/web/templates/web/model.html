@@ -97,6 +97,7 @@
             };
         };
 
+
         var createLegend = function() {
 
             //Code for the legend in the bottom right of the corner
@@ -286,15 +287,36 @@
 
         var loadServiceLayer = function( map, modelId ) {
 
-            var callback = function (response) {
-
-                L.geoJson(response, {
-                    style: style
-                }).addTo(map);
-
+            var popupOptions = {
+                className: "poi-info"
             };
 
-            loadDjangoDataLayer( map, 'poi', {}, callback );
+            var initPopup = function( feature, layer ) {
+                if ( feature.properties && feature.properties.name ) {
+                    var html =
+                        "<div class='name'>" + feature.properties.name + "</div>" +
+                        "<p>" + feature.properties.description + "</p>";
+                    layer.bindPopup( html, popupOptions );
+                }
+            };
+
+            loadDjangoDataLayer( map, 'poi', {}, function (response) {
+
+                var layer   = L.geoJson(
+                    response,
+                    {
+                        style: style,
+                        onEachFeature : initPopup
+                    }
+                ).addTo(map);
+
+                var toggles = { 'Support Groups' : layer };
+                var options = { collapsed : false };
+
+                L.control.layers( {}, toggles, options ).addTo( map );
+
+            });
+
         };
 
         var createOsmLayer = function() {
