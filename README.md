@@ -57,6 +57,11 @@ Installing herri
 Herri has a few moving parts that are involved, partly due to the fact that there are great tools which do most of the hard work for us, and partly due to the fact that the 48hr hackathon put a lot of pressure on us to just hack something together which worked. 
 This section will document both herri itself, and each of its dependencies.
 
+Installing on Ubuntu 14.04
+--------------------------
+
+sudo apt-get install apache2 postgresql-client-9.3 postgresql-9.3-postgis-2.1 
+
 The dependencies are:
  * PostgreSQL + PostGIS (used by geodjango - spatialite may work but it is untested)
  * Apache2 (or some other webserver which works nicely with django)
@@ -71,8 +76,13 @@ Python dependencies
 PostgreSQL setup
 ----------------
 
+su postgres
 createuser -P <username>
 createdb <database_name>
+
+# http://postgis.net/docs/postgis_installation.html#install_short_version
+psql -d <database_name> -c "CREATE EXTENSION postgis;"
+
 
 cp herri/local_settings.py.example herri/local_settings.py
 # Edit local_settings.py and specify relevant database settings (username, password, database name)
