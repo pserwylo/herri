@@ -31,7 +31,13 @@ def _render_model(request, model_id):
     get_key = lambda item: item.lga_code
     index_model_data = dict((get_key(result), float(result.value)) for result in index_model_results)
 
-    context = {'json_index_model_data': json.dumps(index_model_data), 'index_model': index_model, 'min_zoom': min_zoom, 'default_zoom': default_zoom, 'map_bounds': json.dumps(map_bounds)}
+    context = {
+        'json_index_model_data': json.dumps(index_model_data),
+        'index_model': index_model,
+        'min_zoom': min_zoom,
+        'default_zoom': default_zoom,
+        'map_bounds': json.dumps(map_bounds)
+    }
     return render(request, "web/model.html", context)
 
 
