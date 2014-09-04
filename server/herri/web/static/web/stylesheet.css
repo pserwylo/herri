@@ -46,3 +46,17 @@ li {
 .panel h2 {
 	text-align: center;
 }
+
+
+#map .leaflet-marker-icon.region-label {
+    display: none;
+}
+
+#map .leaflet-label {
+    border: none;
+}
+
+#map .leaflet-label.leaflet-label-left::before, .leaflet-label.leaflet-label-right::before {
+    content: "";
+    display: none;
+}

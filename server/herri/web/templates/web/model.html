@@ -289,15 +289,92 @@
 
                 // Discard incoming layers that are superseded by a newer request
                 if ( layerRequest == indexLayerResponse ) {
-                    if (indexLayer != null) {
-                        console.log("Removing previous index layer from map.");
-                        map.removeLayer(indexLayer);
+                    if ( indexLayer != null ) {
+                        console.log( "Removing previous index layer from map." );
+                        map.removeLayer( indexLayer );
                     }
+
+                    if ( regionLabelLayer == null ) {
+                        regionLabelLayer = L.layerGroup();
+                        regionLabelLayer.addTo( map );
+                    } else {
+                        regionLabelLayer.clearLayers();
+                    }
+
+                    var eachFeature = function( feature, layer ) {
+
+                        var name = feature.properties.name;
+
+                        if (feature.geometry.coordinates.length == 0 ) {
+                            console.log( "Feature has no coordinates:" );
+                            console.log( feature );
+                            return layer;
+                        }
+
+                        var iconOptions = {
+                            className : 'region-label'
+                        };
+
+                        var markerOptions = {
+                            icon: new L.DivIcon( iconOptions )
+                        };
+
+                        var markerCenter = layer.getBounds().getCenter();
+
+                        var marker = L.marker( markerCenter, markerOptions );
+
+                        var labelOptions = {
+                            noHide : true,
+                            offset : [ -47.5, -15 ] // Average width of labels is about 95px wide for Victoria.
+                        };
+
+                        marker.bindLabel( name, labelOptions ).addTo( regionLabelLayer );
+                        return layer;
+                    };
 
                     console.log("Adding index layer to map.");
                     indexLayer = L.geoJson(response, {
-                        style: style
+                        style: style,
+                        onEachFeature: eachFeature
                     }).addTo(map);
+
+                    // Now that we've added the labels to the map, they should all have dom elements
+                    // that we can interrogate regarding size and position. We'll take the opportunity
+                    // to find overlapping ones, and hide them.
+
+                    var boundsOfKeptLabels = [];
+                    $( '#map').find( '.leaflet-label' ).each( function( j, item ) {
+
+                        var bounds = item.getBoundingClientRect();
+                        length += bounds.width;
+                        var overlap = false;
+
+                        for ( var ii = 0; ii < boundsOfKeptLabels.length; ii ++ ) {
+
+                            var i = boundsOfKeptLabels[ ii ];
+
+                            var withinX =
+                                    ( bounds.right > i.left && bounds.right < i.right ) ||
+                                    ( bounds.left > i.left && bounds.left < i.right );
+                            var withinY =
+                                    ( bounds.bottom > i.top && bounds.bottom < i.bottom ) ||
+                                    ( bounds.top > i.top && bounds.top < i.bottom );
+
+                            if ( withinX && withinY ) {
+                                overlap = true;
+                                break;
+                            }
+
+                        }
+
+                        if ( overlap ) {
+                            console.log( "Overlap. Poo" );
+                            $( this ).hide();
+                        } else {
+                            boundsOfKeptLabels.push( bounds );
+                        }
+
+                    });
 
                     // Store the cached versions from before the response was sent, because the user may
                     // have interacted with the map since then.
@@ -484,6 +561,7 @@
 
 
         var indexLayer = null;
+        var regionLabelLayer = null;
 
         initMap();
         map.on( 'zoomend', onZoomEnd );
