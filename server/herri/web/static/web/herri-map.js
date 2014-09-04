@@ -170,28 +170,19 @@ Herri.Map = function( server, indexModel ) {
 	var indexLayer = null;
 	var regionLabelLayer = null;
 	var mapBounds = null;
+	var basemap = new Herri.BaseMap.OSM();
 
 	// For debugging, it is helpful to expose this so that we can access it from the console.
 	self._map = null;
 
-	self.setBounds = function( bounds ) {
-		self.mapBounds = bounds;
+	self.setBounds = function( b ) {
+		mapBounds = b;
 		return self;
 	};
 
-	var createOsmLayer = function( minZoom ) {
-
-		var baseMapUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-		var baseMapAttrib = 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
-		return L.tileLayer(
-			baseMapUrl,
-			{
-				minZoom: minZoom,
-				maxZoom: 14,
-				attribution: baseMapAttrib
-			}
-		);
-
+	self.setBaseMap = function( b ) {
+		basemap = b;
+		return self;
 	};
 
 	var createLegend = function() {
@@ -504,7 +495,7 @@ Herri.Map = function( server, indexModel ) {
 			minZoom : minZoom
 		}).setView( initialView, defaultZoom );
 
-		createOsmLayer( map, minZoom ).addTo( map );
+		basemap.createTileLayer( minZoom ).addTo( map );
 		createLegend().addTo( map );
 
 		var dummyLayer = L.polygon([], {});
@@ -534,5 +525,51 @@ Herri.Map = function( server, indexModel ) {
 		return self;
 
 	};
+
+};
+
+Herri.BaseMap = function( url, parameters ) {
+
+	var self = this;
+
+	self.createTileLayer = function( minZoom ) {
+		parameters.minZoom = minZoom;
+		parameters.maxZoom = 14;
+		return L.tileLayer( url, parameters );
+	};
+
+};
+
+Herri.BaseMap.MapBox = function( mapboxId ) {
+
+	var self = this;
+
+	var getUrl = function() {
+		return 'https://{s}.tiles.mapbox.com/v3/' + mapboxId + '/{z}/{x}/{y}.png';
+	};
+
+	var getAttribution = function() {
+		return 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+			'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+			'Imagery © <a href="http://mapbox.com">Mapbox</a>';
+	};
+
+	Herri.BaseMap.call( this, getUrl(), { attribution : getAttribution() } );
+
+};
+
+Herri.BaseMap.OSM = function() {
+
+	var self = this;
+
+	var getUrl = function() {
+		return 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+	};
+
+	var getAttribution = function() {
+		return 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
+	};
+
+	Herri.BaseMap.call( this, getUrl(), { attribution : getAttribution() } );
 
 };

@@ -25,6 +25,9 @@ TEMPLATE_DEBUG = True
 #   9 (Unincorporated other territories)
 RESTRICT_TO_STATE = None
 
+# For example: 'examples.map-i86knfo3'
+MAPBOX_BASEMAP = None
+
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 

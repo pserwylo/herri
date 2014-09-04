@@ -26,9 +26,13 @@
     <script type="text/javascript">
 
         var indexModel = new Herri.IndexModel( {{ index_model.id }}, {{ index_model.to_json|safe }}, {{ json_index_model_data|safe }} );
-        var map = new Herri.Map( new Herri.Server(), indexModel )
-                .setBounds( {{ map_bounds|safe }} )
-                .init( [ -37.1078, 145.0195 ], {{ default_zoom }}, {{ min_zoom }} );
+        var map = new Herri.Map( new Herri.Server(), indexModel ).setBounds( {{ map_bounds|safe }} );
+
+        {% if mapbox_basemap != None %}
+        map.setBaseMap( new Herri.BaseMap.MapBox( '{{ mapbox_basemap|safe }}' ) );
+        {% endif %}
+
+        map.init( [ -37.1078, 145.0195 ], {{ default_zoom }}, {{ min_zoom }} );
 
 		var loadDataQuery = function() {
             var host = 'overpass-api.de';
