@@ -1,14 +1,5 @@
 [![Herri logo](https://raw.github.com/pserwylo/herri/master/docs/images/herri-logo-400px.png)](https://github.com/pserwylo/herri)
 
-[Vote for us on GovHack!](http://hackerspace.govhack.org/content/herri-find-your-place-your-community)
-
-A message for people from GovHack
-=================================
-
-To enable continued development of herri, without inteferring with the voting period of govhack, we've [tagged the version of herri which was completed at 5:30pm at the end of GovHack](https://github.com/pserwylo/herri/releases/tag/govhack-2014-submission).
-The [demo website](http://herri.serwylo.com) will _not_ be updated until _after_ the voting period is complete. 
-Until then, the old, crufty, hacky version of the code will be kept running.
-
 What is Herri?
 ==============
 
@@ -37,6 +28,8 @@ Why was it created?
 
 Herri was created during GovHack 2014 - a 48h hackathon in Australia, where teams are encouraged to build awesome things with open government data. 
 This project opted to make use of the census data, provided by the Australian Beauru of Statistics.
+
+[GovHack 2014 project page](http://hackerspace.govhack.org/content/herri-find-your-place-your-community)
 
 Who created it?
 ===============
