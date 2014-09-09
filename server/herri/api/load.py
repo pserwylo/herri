@@ -1,5 +1,7 @@
 import os
+from django.contrib.auth.models import User
 from django.contrib.gis.utils import LayerMapping
+from api.models import AttributeModel, Weighting, Attribute
 
 from models import POI, Region
 
@@ -36,5 +38,29 @@ def load_lga(verbose=True):
     lm.save(strict=True, verbose=verbose)
 
 
-def __init__():
-    load_lga()
+def create_or_update_autism_model():
+
+    try:
+        model = AttributeModel.objects.get(id=1)
+        model.delete()
+    except:
+        pass
+
+    model = AttributeModel()
+    model.id = 1
+    model.description = "This is a map of population density overlayed with markers marking where autism support groups are located within Victoria."
+    model.name = "BLAH: Autism Support Services"
+    model.user = User.objects.get(id=1)
+    model.save()
+
+    attr_total_population = Attribute(column_name='tot_p_p')
+
+    weighting = Weighting()
+    weighting.attribute = attr_total_population
+    weighting.weight = 1
+    weighting.save()
+
+    model.weightings = ( weighting, )
+    model.save()
+
+    model.recalculate_index()

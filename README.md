@@ -53,11 +53,12 @@ This section will document both herri itself, and each of its dependencies.
 Installing on Ubuntu 14.04
 --------------------------
 
-sudo apt-get install apache2 postgresql-client-9.3 postgresql-9.3-postgis-2.1 
+sudo apt-get install apache2 postgresql-client-9.3 postgresql-9.3-postgis-2.1 gdal-bin
 
 The dependencies are:
  * PostgreSQL + PostGIS (used by geodjango - spatialite may work but it is untested)
  * Apache2 (or some other webserver which works nicely with django)
+ * GDAL/OGR (preprocessing geospatial files before importing)
 
 Python dependencies
 -------------------
@@ -76,9 +77,41 @@ createdb <database_name>
 # http://postgis.net/docs/postgis_installation.html#install_short_version
 psql -d <database_name> -c "CREATE EXTENSION postgis;"
 
-
 cp herri/local_settings.py.example herri/local_settings.py
 # Edit local_settings.py and specify relevant database settings (username, password, database name)
+
+# Ask django to create relevant tables for us.
+python {path/to/manage.py}/manage.py syncdb
+
+Importing data
+--------------
+
+Cencus data:
+ * Visit https://www.censusdata.abs.gov.au/datapacks/DataPacks?release=2011 (account required)
+ * Download "Local Government Areas" for all of Australia
+ * Unzip "2011_BCP_LGA_for_AUST_short-header.zip" file
+ * `mv "2011 Census BCP Local Government Areas for AUST/AUST/*" server/db_population/census2011/`
+ * cd server/db_population/
+ * `./import_abs.sh`
+
+Local Government Areas (LGAs): 
+ * Visit http://www.abs.gov.au/AUSSTATS/abs@.nsf/DetailsPage/1259.0.30.001July%202011?OpenDocument
+ * Download "Local Government Area ASGC Ed 2011 Digital Boundaries in ESRI Shapefile Format"
+ * Unzip the file to db_population/LGAs
+ * cd to server/db_population/LGAs
+ * run `./prepare.sh` (to filter out areas with a size of 'null' that cause import errors)
+ * cd to server/herri
+ * Open the django shell: `python manage.py shell`
+ * From the shell, run:
+ ** from api import load
+ ** load.load_lga()
+
+Autism support groups:
+ * Open the django shell: `python manage.py shell`
+ * From the shell, run:
+ ** from api import load
+ ** load.load_autism_poi()
+ ** load.create_or_update_autism_model()
 
 TODO: Explain the config files for the relevant software.
 

@@ -134,16 +134,11 @@ def save_attribute_model(request):
         new_model.save()
 
         try:
-            sql = new_model.get_model_sql()
-            cursor = connections['default'].cursor()
-            cursor.execute(sql)
-
+            new_model.recalculate_index()
         except Exception as e:
             json_data = "{'error': 'MODEL NOT SAVED TO DATABASE %s'}" % (`e`)
-
             return HttpResponse(json_data, content_type='application/json')
 
-        new_model.recalculate_quantiles()
         new_model.save()
 
         return get_attribute_model(request, new_model.id)

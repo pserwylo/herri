@@ -2,6 +2,7 @@ import json
 from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.auth.models import User
+from django.db import connections
 
 SQL_TEMPLATE = 'insert into api_modelresult (run_id, lga_code, value) %s;'
 SQL_TABLE = 'lga_attributes_all'
@@ -90,7 +91,16 @@ class AttributeModel(models.Model):
     def __unicode__(self):
         return "Model: %s" % self.name
 
-    def recalculate_quantiles(self):
+    def recalculate_index(self):
+        ModelResult.objects.filter(run_id=self.id).delete()
+
+        sql = self.get_model_sql()
+        cursor = connections['default'].cursor()
+        cursor.execute(sql)
+
+        self._recalculate_quantiles()
+
+    def _recalculate_quantiles(self):
         sql = 'select 0 as id, min(value) as quantile_0, quantile(value, 0.2) as quantile_1, quantile(value, 0.4) as quantile_2, quantile(value, 0.6) as quantile_3, quantile(value, 0.8) as quantile_4, max(value) as quantile_5 from api_modelresult where run_id = %d' % self.id
         query_set = AttributeModel.objects.raw(sql)
         self.quantile_0 = query_set[0].quantile_0
