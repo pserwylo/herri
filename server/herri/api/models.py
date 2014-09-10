@@ -44,7 +44,6 @@ class Region(models.Model):
     def __unicode__(self):
         return self.name
 
-
 class Attribute(models.Model):
     name = models.CharField(max_length=200)
     column_name = models.CharField(max_length=200)
@@ -91,10 +90,19 @@ class AttributeModel(models.Model):
     def __unicode__(self):
         return "Model: %s" % self.name
 
-    def recalculate_index(self):
-        ModelResult.objects.filter(run_id=self.id).delete()
+    def recalculate_index(self, verbose=False):
+        existing = ModelResult.objects.filter(run_id=self.id)
+
+	if verbose == True:
+		print "Deleting %s existing model results..." % len(existing)
+
+	existing.delete()
 
         sql = self.get_model_sql()
+
+	if verbose == True:
+		print "Executing sql to build model:\n%s" % sql
+
         cursor = connections['default'].cursor()
         cursor.execute(sql)
 
@@ -109,6 +117,7 @@ class AttributeModel(models.Model):
         self.quantile_3 = query_set[0].quantile_3
         self.quantile_4 = query_set[0].quantile_4
         self.quantile_5 = query_set[0].quantile_5
+	self.save()
 
     def get_model_sql(self):
         sql_strings = []
@@ -124,7 +133,11 @@ class AttributeModel(models.Model):
             state_sql = ' and state_code = %d' % int(settings.RESTRICT_TO_STATE)
             state_join_sql = ' join api_region on api_region.lga_code = lga_attributes_all.region_id '
 
-        value_sql = ' ( ' + ' + '.join(sql_strings) + ' ) / tot_p_p '
+	normalisation = ' / tot_p_p '
+	if len(self.weightings.all()) == 1 and self.weightings.all()[0].attribute.column_name == 'tot_p_p':
+		normalisation = ''
+
+        value_sql = ' ( ' + ' + '.join(sql_strings) + ' ) %s' % normalisation
 
         sql_result = 'select %d as model_id, region_id, %s as value from lga_attributes_all %s where true %s' % (
             self.id, value_sql, state_join_sql, state_sql
