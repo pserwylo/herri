@@ -53,12 +53,13 @@ This section will document both herri itself, and each of its dependencies.
 Installing on Ubuntu 14.04
 --------------------------
 
-sudo apt-get install apache2 postgresql-client-9.3 postgresql-9.3-postgis-2.1 gdal-bin
+sudo apt-get install apache2 postgresql-client-9.3 postgresql-9.3-postgis-2.1 gdal-bin pgxnclient postgresql-server-dev-9.3
 
 The dependencies are:
  * PostgreSQL + PostGIS (used by geodjango - spatialite may work but it is untested)
  * Apache2 (or some other webserver which works nicely with django)
  * GDAL/OGR (preprocessing geospatial files before importing)
+ * PGXN (package manager for PostgreSQL - used to install the "quantile" extension for PostGIS. This is also why postgresql-server-dev-9.3 is required, in order to build the quantile extension)
 
 Python dependencies
 -------------------
@@ -66,6 +67,11 @@ Python dependencies
  * psycopg2
  * vectorformats
  * simplejson<=2.0.7 (see https://github.com/simplejson/simplejson/issues/37 for biff between simplejson and django devs as to why latest is not suitable)
+ * wadofstuff-django-serializers
+
+Troubleshooting "Could not find any downloads that satisfy the requirement wadofstuff-django-serializers"
+
+Your pip installation may refuse to install wadofstuff, because the package maintainers don't host it on pypi.org. Even if you `pip --allow-external`, then it can fail because they only have a http:// link, not a https:// link. This can be gotten around by giving pip the https link to download: `pip install https://wadofstuff.googlecode.com/files/wadofstuff-django-serializers-1.1.0.tar.gz`.
 
 PostgreSQL setup
 ----------------
@@ -76,6 +82,26 @@ createdb <database_name>
 
 # http://postgis.net/docs/postgis_installation.html#install_short_version
 psql -d <database_name> -c "CREATE EXTENSION postgis;"
+
+# Install the "quantile" extension:
+#  * In theory, pgxn should be able to do this for us.
+#  * In practice, it hasn't worked the previous two times a herri server was setup.
+# If the following pgxn command doesn't work, then you can install it manually.
+pgxn load -d <database_name> quantile
+
+
+# Install "quantile" extension (MANUALLY)
+# For if the "pgxn load" command didn't work for you:
+cd /tmp
+wget http://api.pgxn.org/dist/quantile/1.1.3/quantile-1.1.3.zip
+unzip quantile-1.1.3.zip
+cd quantile
+make
+# As root user:
+make install
+# As postgres user:
+psql <database_name> -c "CREATE EXTENSION quantile"
+
 
 cp herri/local_settings.py.example herri/local_settings.py
 # Edit local_settings.py and specify relevant database settings (username, password, database name)
@@ -92,6 +118,7 @@ Cencus data:
  * Unzip "2011_BCP_LGA_for_AUST_short-header.zip" file
  * `mv "2011 Census BCP Local Government Areas for AUST/AUST/*" server/db_population/census2011/`
  * cd server/db_population/
+ * setup the database name variable in the import_abs.sh 
  * `./import_abs.sh`
 
 Local Government Areas (LGAs): 
