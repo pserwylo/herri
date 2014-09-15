@@ -174,6 +174,7 @@ Herri.Map = function( server, indexModel ) {
 
 	// For debugging, it is helpful to expose this so that we can access it from the console.
 	self._map = null;
+	self._layerToggles = null;
 
 	self.setBounds = function( b ) {
 		mapBounds = b;
@@ -245,6 +246,43 @@ Herri.Map = function( server, indexModel ) {
 	var indexLayerResponse = 0;
 	var indexLayerPreviousZoom = null;
 	var indexLayerPreviousBounds = null;
+
+	var removeOverlappingLabels = function() {
+
+		var boundsOfKeptLabels = [];
+		$( '#map').find( '.leaflet-label' ).each( function( j, item ) {
+
+			var bounds = item.getBoundingClientRect();
+			var overlap = false;
+
+			for ( var ii = 0; ii < boundsOfKeptLabels.length; ii ++ ) {
+
+				var i = boundsOfKeptLabels[ ii ];
+
+				var withinX =
+						( bounds.right > i.left && bounds.right < i.right ) ||
+						( bounds.left > i.left && bounds.left < i.right );
+				var withinY =
+						( bounds.bottom > i.top && bounds.bottom < i.bottom ) ||
+						( bounds.top > i.top && bounds.top < i.bottom );
+
+				if ( withinX && withinY ) {
+					overlap = true;
+					break;
+				}
+
+			}
+
+			if ( overlap ) {
+				console.log( "Overlap. Poo" );
+				$( this ).hide();
+			} else {
+				boundsOfKeptLabels.push( bounds );
+			}
+
+		});
+
+	};
 
 	self.loadIndexLayer = function() {
 
@@ -360,6 +398,7 @@ Herri.Map = function( server, indexModel ) {
 				if ( regionLabelLayer == null ) {
 					regionLabelLayer = L.layerGroup();
 					regionLabelLayer.addTo( map );
+					layerToggles.addOverlay( regionLabelLayer, 'Region names' );
 				} else {
 					regionLabelLayer.clearLayers();
 				}
@@ -404,39 +443,7 @@ Herri.Map = function( server, indexModel ) {
 				// Now that we've added the labels to the map, they should all have dom elements
 				// that we can interrogate regarding size and position. We'll take the opportunity
 				// to find overlapping ones, and hide them.
-
-				var boundsOfKeptLabels = [];
-				$( '#map').find( '.leaflet-label' ).each( function( j, item ) {
-
-					var bounds = item.getBoundingClientRect();
-					var overlap = false;
-
-					for ( var ii = 0; ii < boundsOfKeptLabels.length; ii ++ ) {
-
-						var i = boundsOfKeptLabels[ ii ];
-
-						var withinX =
-								( bounds.right > i.left && bounds.right < i.right ) ||
-								( bounds.left > i.left && bounds.left < i.right );
-						var withinY =
-								( bounds.bottom > i.top && bounds.bottom < i.bottom ) ||
-								( bounds.top > i.top && bounds.top < i.bottom );
-
-						if ( withinX && withinY ) {
-							overlap = true;
-							break;
-						}
-
-					}
-
-					if ( overlap ) {
-						console.log( "Overlap. Poo" );
-						$( this ).hide();
-					} else {
-						boundsOfKeptLabels.push( bounds );
-					}
-
-				});
+				removeOverlappingLabels();
 
 				// Store the cached versions from before the response was sent, because the user may
 				// have interacted with the map since then.
@@ -490,7 +497,7 @@ Herri.Map = function( server, indexModel ) {
 
 	self.init = function( initialView, defaultZoom, minZoom ) {
 
-		map = L.map('map', {
+		map = self._map = L.map('map', {
 			maxBounds : mapBounds,
 			minZoom : minZoom
 		}).setView( initialView, defaultZoom );
@@ -502,11 +509,13 @@ Herri.Map = function( server, indexModel ) {
 		var toggles = { 'Highest value' : dummyLayer };
 		var options = { collapsed : false };
 
-		layerToggles = L.control.layers( {}, toggles, options ).addTo( map );
+		layerToggles = self._layerToggles = L.control.layers( {}, toggles, options ).addTo( map );
 		map.on( 'overlayadd', function( event ) {
 			if ( dummyLayer == event.layer ) {
 				style.highlightHighest = true;
 				restyleIndexLayer();
+			} else if (regionLabelLayer == event.layer) {
+				removeOverlappingLabels();
 			}
 		}).on( 'overlayremove', function( event ) {
 			if ( dummyLayer == event.layer ) {
@@ -519,8 +528,6 @@ Herri.Map = function( server, indexModel ) {
         map.on( 'dragend',  onPanEnd  );
 
 		initialiseModel();
-
-		self._map = map;
 
 		return self;
 

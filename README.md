@@ -1,7 +1,6 @@
 [![Herri logo](https://raw.github.com/pserwylo/herri/master/docs/images/herri-logo-400px.png)](https://github.com/pserwylo/herri)
 
-What is Herri?
-==============
+# What is Herri?
 
 Herri (a Basque word for "commune") is a tool that facilitiates creating and sharing service cachment models.
 Service cachement area models are models which allow a specific subset of the population to be modelled to see how prevailent they are in the community.
@@ -17,22 +16,19 @@ As a result, one is able to visualise where there is a lack of support for servi
 In addition to the web application, we also worked hard during the hackathon to prototype a card/board game which will be used to help educate people without about the concepts involved, without using any computers.
 The goal is to develop an app which uses image processing to turn a photograph of the physical board and convert it into an interactive model for people to explore. 
 
-Demo
-====
+## Demo
 
 The first version (hacked together in 48hrs) is available at http://herri.serwylo.com. It is running of the code in the "govhack-2014-submission" tag.
 In the future (after voting is closed), this will be updated to a newer version of herri.
 
-Why was it created?
-===================
+## Why was it created?
 
 Herri was created during GovHack 2014 - a 48h hackathon in Australia, where teams are encouraged to build awesome things with open government data. 
 This project opted to make use of the census data, provided by the Australian Beauru of Statistics.
 
 [GovHack 2014 project page](http://hackerspace.govhack.org/content/herri-find-your-place-your-community)
 
-Who created it?
-===============
+## Who created it?
 
 The Herri team consisted of the following people:
  * Fred
@@ -44,16 +40,14 @@ The Herri team consisted of the following people:
  * Daniel
  * Pete
 
-Installing herri
-================
+# Installing herri
 
 Herri has a few moving parts that are involved, partly due to the fact that there are great tools which do most of the hard work for us, and partly due to the fact that the 48hr hackathon put a lot of pressure on us to just hack something together which worked. 
 This section will document both herri itself, and each of its dependencies.
 
-Installing on Ubuntu 14.04
---------------------------
+## Installing on Ubuntu 14.04
 
-sudo apt-get install apache2 postgresql-client-9.3 postgresql-9.3-postgis-2.1 gdal-bin pgxnclient postgresql-server-dev-9.3
+`sudo apt-get install apache2 postgresql-client-9.3 postgresql-9.3-postgis-2.1 gdal-bin pgxnclient postgresql-server-dev-9.3`
 
 The dependencies are:
  * PostgreSQL + PostGIS (used by geodjango - spatialite may work but it is untested)
@@ -61,8 +55,7 @@ The dependencies are:
  * GDAL/OGR (preprocessing geospatial files before importing)
  * PGXN (package manager for PostgreSQL - used to install the "quantile" extension for PostGIS. This is also why postgresql-server-dev-9.3 is required, in order to build the quantile extension)
 
-Python dependencies
--------------------
+## Python dependencies
 
  * psycopg2
  * vectorformats
@@ -73,77 +66,75 @@ Troubleshooting "Could not find any downloads that satisfy the requirement wadof
 
 Your pip installation may refuse to install wadofstuff, because the package maintainers don't host it on pypi.org. Even if you `pip --allow-external`, then it can fail because they only have a http:// link, not a https:// link. This can be gotten around by giving pip the https link to download: `pip install https://wadofstuff.googlecode.com/files/wadofstuff-django-serializers-1.1.0.tar.gz`.
 
-PostgreSQL setup
-----------------
+## PostgreSQL setup
 
-su postgres
-createuser -P <username>
-createdb <database_name>
+* `su postgres`
+* `createuser -P <username>`
+* `createdb <database_name>`
+* `psql -d <database_name> -c "CREATE EXTENSION postgis;"` (http://postgis.net/docs/postgis_installation.html#install_short_version)
 
-# http://postgis.net/docs/postgis_installation.html#install_short_version
-psql -d <database_name> -c "CREATE EXTENSION postgis;"
+### Install the "quantile" extension:
 
-# Install the "quantile" extension:
-#  * In theory, pgxn should be able to do this for us.
-#  * In practice, it hasn't worked the previous two times a herri server was setup.
-# If the following pgxn command doesn't work, then you can install it manually.
-pgxn load -d <database_name> quantile
+* `pgxn load -d <database_name> quantile`
 
+#### Install "quantile" extension (MANUALLY)
 
-# Install "quantile" extension (MANUALLY)
-# For if the "pgxn load" command didn't work for you:
-cd /tmp
-wget http://api.pgxn.org/dist/quantile/1.1.3/quantile-1.1.3.zip
-unzip quantile-1.1.3.zip
-cd quantile
-make
-# As root user:
-make install
-# As postgres user:
-psql <database_name> -c "CREATE EXTENSION quantile"
+In theory, pgxn should be able to do this for us.
+In practice, it hasn't worked the previous two times a herri server was setup.
+If the  previous pgxn command doesn't work, then you can install it manually:
 
+* `cd /tmp`
+* `wget http://api.pgxn.org/dist/quantile/1.1.3/quantile-1.1.3.zip`
+* `unzip quantile-1.1.3.zip`
+* `cd quantile`
+* `make`
+* `make install` (as root user)
+* `psql <database_name> -c "CREATE EXTENSION quantile"` (as postgres user)
 
-cp herri/local_settings.py.example herri/local_settings.py
-# Edit local_settings.py and specify relevant database settings (username, password, database name)
+# Configuring Herri
 
-# Ask django to create relevant tables for us.
-python {path/to/manage.py}/manage.py syncdb
+The settings which are specific to your site are in a file named 'local_settings.py'.
+To create this file, `cp herri/local_settings.py.example herri/local_settings.py`. 
+Then edit local_settings.py and specify relevant database settings (username, password, database name)
 
-Importing data
---------------
+After doing so, ask django to create relevant tables for us `python manage.py syncdb`.
 
-Cencus data:
+## Importing data
+
+### Census data
+
  * Visit https://www.censusdata.abs.gov.au/datapacks/DataPacks?release=2011 (account required)
  * Download "Local Government Areas" for all of Australia
  * Unzip "2011_BCP_LGA_for_AUST_short-header.zip" file
  * `mv "2011 Census BCP Local Government Areas for AUST/AUST/*" server/db_population/census2011/`
- * cd server/db_population/
+ * `cd server/db_population/`
  * setup the database name variable in the import_abs.sh 
  * `./import_abs.sh`
 
-Local Government Areas (LGAs): 
+### Local Government Areas (LGAs)
+
  * Visit http://www.abs.gov.au/AUSSTATS/abs@.nsf/DetailsPage/1259.0.30.001July%202011?OpenDocument
  * Download "Local Government Area ASGC Ed 2011 Digital Boundaries in ESRI Shapefile Format"
  * Unzip the file to db_population/LGAs
- * cd to server/db_population/LGAs
+ * `cd to server/db_population/LGAs`
  * run `./prepare.sh` (to filter out areas with a size of 'null' that cause import errors)
- * cd to server/herri
+ * `cd server/herri/`
  * Open the django shell: `python manage.py shell`
  * From the shell, run:
- ** from api import load
- ** load.load_lga()
+   * `from api import load`
+   * `load.load_lga()`
 
-Autism support groups:
+### Autism support groups
+
  * Open the django shell: `python manage.py shell`
  * From the shell, run:
- ** from api import load
- ** load.load_autism_poi()
- ** load.create_or_update_autism_model()
+   * `from api import load`
+   * `load.load_autism_poi()`
+   * `load.create_or_update_autism_model()`
 
 TODO: Explain the config files for the relevant software.
 
-Contributing to herri
-=====================
+# Contributing to herri
 
 With an application such as Herri, there is always opportunity to improve. 
 Whether it is improving accessibility for people without computers, people with disabilities or people with mobile devices.
