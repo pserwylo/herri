@@ -101,7 +101,29 @@ After doing so, ask django to create relevant tables for us `python manage.py sy
 
 ## Importing data
 
-### Census data
+### Census data (TableBuilder)
+
+TableBuilder is a more customized way to decide what census data to get out of the ABS.
+Right now, the process for importing it is a little shonky, but bear with us until a proper import routine is setup:
+
+Firstly, we need a table "b01_aust_lga_short" present, which has a field "tot_p_p" in it. 
+This is neccesary because we need to be able to normalise index models based on LGA's total population.
+The reason for the b01_aust_lga_short table is because historically it is information that we had handy, and so we may as well use it. 
+
+ * See "Census data (DataPacks)" below for instructions on how to get the census data.
+ * `cd server/db_populations`
+ * `psql -w <db_name> <db_user> < b01.sql`
+
+Once the b01 table is in the database, then we can actually import the table builder data:
+
+ * `python manage.py shell`
+ * `from api import load`
+ * `load.TableBuilder('/census-table-builder/Tablebuildercompilation.csv').load()`
+
+### Census data (DataPacks)
+
+DataPacks are the way in which the ABS packages up data to be donwloaded.
+They come ready with various attributes, which may or may not be desirable for you.
 
  * Visit https://www.censusdata.abs.gov.au/datapacks/DataPacks?release=2011 (account required)
  * Download "Local Government Areas" for all of Australia

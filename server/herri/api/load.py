@@ -8,9 +8,7 @@ from api.models import AttributeModel, Weighting, Attribute
 
 from models import POI, Region
 
-
 DATA_DIR = os.path.join(os.path.dirname(__file__), '../../db_population/')
-
 
 def load_autism_poi(verbose=True):
     autism_poi_mapping = {
@@ -71,7 +69,7 @@ def create_or_update_autism_model(verbose=True):
 
 class TableBuilder:
     def __init__(self, csv_path, verbose=True):
-        self.csv_path = csv_path
+        self.csv_path = os.path.join(DATA_DIR + csv_path)
         self.verbose = verbose
         self.cursor = connections['default'].cursor()
 
@@ -187,6 +185,6 @@ class TableBuilder:
         self._prepare_total_population()
 
 
-# TableBuilder(os.path.join(DATA_DIR + '/census-table-builder/Tablebuildercompilation.csv')).load()
+# TableBuilder('/census-table-builder/Tablebuildercompilation.csv').load()
 # load_lga(True)
-create_or_update_autism_model(True)
+# create_or_update_autism_model(True)

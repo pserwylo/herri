@@ -60,7 +60,7 @@ class Weighting(models.Model):
     description = models.TextField()
 
     def __unicode__(self):
-        return "Weighting: {0}={1:.2f} ({2})".format('Total pop', 0.913, 1)
+        return "Weighting: {0}={1:.2f}".format(self.attribute.name, self.weight)
 
 
 class AttributeModel(models.Model):
